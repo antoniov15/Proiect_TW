@@ -9,7 +9,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
-@MappedSuperclass // Spune JPA sa nu creeze o tabela pt clasa asta, ci sa foloseasca campurile in copiii ei
+@MappedSuperclass
 public abstract class BaseEntity implements Serializable {
 
     @Getter
