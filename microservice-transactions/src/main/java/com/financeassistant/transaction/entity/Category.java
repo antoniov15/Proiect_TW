@@ -7,13 +7,12 @@ import java.util.Set;
 
 @Entity
 @Table(name = "categories")
+@Getter @Setter
 public class Category extends BaseEntity{
 
-    @Getter @Setter
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Getter @Setter
     @OneToMany(mappedBy = "category")
     private Set<Transaction> transactions;
 }
