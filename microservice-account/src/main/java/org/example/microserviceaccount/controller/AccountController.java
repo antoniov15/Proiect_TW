@@ -55,4 +55,27 @@ public class AccountController {
         accountService.deleteAccount(id);
         return ResponseEntity.noContent().build(); // Returnează 204 No Content
     }
+
+    // cautare dupa email
+    @GetMapping("/email/{email}")
+    public ResponseEntity<AccountResponseDTO> getAccountByEmail(@PathVariable String email) {
+        AccountResponseDTO account = accountService.getAccountByEmail(email);
+        return ResponseEntity.ok(account);
+    }
+
+    // sortare dupa createdAt
+    @GetMapping("/sorted")
+    public ResponseEntity<List<AccountResponseDTO>> getAccountsSortedByCreationDate(
+            @RequestParam(defaultValue = "asc") String direction) {
+        List<AccountResponseDTO> accounts = accountService.getAccountsSortedByCreationDate(direction);
+        return ResponseEntity.ok(accounts);
+    }
+
+    // filtrare userName
+    @GetMapping("/search")
+    public ResponseEntity<List<AccountResponseDTO>> searchAccountsByUsername(
+            @RequestParam String username) {
+        List<AccountResponseDTO> accounts = accountService.findAccountsByUsernameContaining(username);
+        return ResponseEntity.ok(accounts);
+    }
 }

@@ -67,4 +67,28 @@ public class AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id " + id + " not found"));
         accountRepository.delete(existingAccount);
     }
+
+    // Căutare după email
+    public AccountResponseDTO getAccountByEmail(String email) {
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Contul cu email-ul " + email + " nu a fost găsit."));
+
+        return accountMapper.accountToAccountResponseDTO(account);
+    }
+
+    // sortare duoa createdAt
+    public List<AccountResponseDTO> getAccountsSortedByCreationDate(String direction) {
+        // Validăm direcția sortării
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(sortDirection, "createdAt");
+
+        List<Account> accounts = accountRepository.findAll(sort);
+        return accountMapper.accountsToAccountResponseDTOs(accounts);
+    }
+
+    // cautare după userName
+    public List<AccountResponseDTO> findAccountsByUsernameContaining(String usernameFragment) {
+        List<Account> accounts = accountRepository.findByUserNameContainingIgnoreCase(usernameFragment);
+        return accountMapper.accountsToAccountResponseDTOs(accounts);
+    }
 }
