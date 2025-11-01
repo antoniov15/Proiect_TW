@@ -1,7 +1,7 @@
 package org.example.microserviceaccount.repository;
 
 import org.example.microserviceaccount.entity.Account;
-import org.springframework.data.jpa.repository.JpaRepository;;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
