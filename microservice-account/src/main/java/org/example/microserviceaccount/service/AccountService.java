@@ -22,13 +22,13 @@ public class AccountService {
     public AccountService(AccountRepository accountRepository, AccountMapper accountMapper) {
         this.accountRepository = accountRepository;
         this.accountMapper = accountMapper;
-}
+    }
 
-// metode CRUD
-// Create
+    // metode CRUD
+    // Create POST
     public AccountResponseDTO createAccount(AccountCreateDTO createDTO) {
         accountRepository.findByEmail(createDTO.getEmail()).ifPresent(account -> {
-            throw new IllegalArgumentException("Email " + createDTO.getEmail() + " already in use");}
+            throw new IllegalArgumentException("Email " + createDTO.getEmail() + " already in use");
         });
         Account newAccount = accountMapper.accountCreateDTOToAccount(createDTO);
         Account savedAccount = accountRepository.save(newAccount);
@@ -67,3 +67,4 @@ public class AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id " + id + " not found"));
         accountRepository.delete(existingAccount);
     }
+}
