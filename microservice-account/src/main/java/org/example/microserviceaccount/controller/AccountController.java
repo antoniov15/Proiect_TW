@@ -32,14 +32,14 @@ public class AccountController {
     @GetMapping("/{id}")
     public ResponseEntity<AccountResponseDTO> getAccountById(@PathVariable Long id) {
         AccountResponseDTO responseDTO = accountService.getAccountById(id);
-        return ResponseEntity.ok(account);
+        return ResponseEntity.ok(responseDTO);
     }
 
     // Read (GET all)
     @GetMapping
     public ResponseEntity<List<AccountResponseDTO>> getAllAccounts() {
         List<AccountResponseDTO> responseDTOs = accountService.getAllAccounts();
-        return ResponseEntity.ok(accounts);
+        return ResponseEntity.ok(responseDTOs);
     }
 
     // Update (PUT)

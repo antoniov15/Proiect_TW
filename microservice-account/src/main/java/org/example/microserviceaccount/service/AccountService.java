@@ -58,7 +58,7 @@ public class AccountService {
 
         Account updatedAccount = accountRepository.save(existingAccount);
 
-        return accountMapper.accountToAccountResponseDTO(updatedAccount);A
+        return accountMapper.accountToAccountResponseDTO(updatedAccount);
     }
 
     // Delete
