@@ -4,6 +4,9 @@ import com.financeassistant.transaction.dto.TransactionViewDTO;
 import com.financeassistant.transaction.entity.Transaction;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class TransactionMapper {
 
@@ -20,5 +23,13 @@ public class TransactionMapper {
             transaction.getType(),
             categoryName
         );
+    }
+
+    public List<TransactionViewDTO> toViewDTOs(List<Transaction> transactions) {
+        List<TransactionViewDTO> DTOs = new ArrayList<>();
+        for (Transaction transaction : transactions) {
+            DTOs.add(toViewDTO(transaction));
+        }
+        return DTOs;
     }
 }

@@ -3,12 +3,15 @@ package com.financeassistant.transaction.controller;
 import com.financeassistant.transaction.dto.CreateTransactionDTO;
 import com.financeassistant.transaction.dto.TransactionViewDTO;
 import com.financeassistant.transaction.dto.UpdateTransactionDTO;
+import com.financeassistant.transaction.entity.TransactionType;
 import com.financeassistant.transaction.service.TransactionService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -60,5 +63,23 @@ public class TransactionController {
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<TransactionViewDTO>> getTransactionsByUserId(
+            @PathVariable Long userId,
+            @RequestParam(required = false) TransactionType type,
+            @RequestParam(required = false, defaultValue = "date") String sortBy,
+            @RequestParam(required = false) String order
+            ){
+
+        List<TransactionViewDTO> transactions = transactionService.getTransactionsByUserId(
+                userId,
+                type,
+                sortBy,
+                order
+        );
+
+        return new ResponseEntity<>(transactions, HttpStatus.OK);
     }
 }

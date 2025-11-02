@@ -5,6 +5,7 @@ import com.financeassistant.transaction.dto.TransactionViewDTO;
 import com.financeassistant.transaction.dto.UpdateTransactionDTO;
 import com.financeassistant.transaction.entity.Category;
 import com.financeassistant.transaction.entity.Transaction;
+import com.financeassistant.transaction.entity.TransactionType;
 import com.financeassistant.transaction.mapper.TransactionMapper;
 import com.financeassistant.transaction.repository.CategoryRepository;
 import com.financeassistant.transaction.repository.TransactionRepository;
@@ -12,6 +13,11 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class TransactionService {
@@ -78,5 +84,33 @@ public class TransactionService {
             throw new EntityNotFoundException("Transaction not found with ID: " + id);
         }
         transactionRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TransactionViewDTO> getTransactionsByUserId(Long userId, TransactionType type, String sortBy, String order) {
+
+        List<Transaction> transactions = transactionRepository.findAllByUserId(userId);
+
+        Stream<Transaction> transactionStream = transactions.stream();
+
+        if (type != null) {
+            transactionStream = transactionStream.filter(t -> t.getType() == type);
+        }
+
+        Comparator<Transaction> comparator = switch (sortBy.toLowerCase()) {
+            case "amount" -> Comparator.comparing(Transaction::getAmount);
+            case "date" -> Comparator.comparing(Transaction::getDate);
+            default -> Comparator.comparing(Transaction::getDate);
+        };
+
+        if ("desc".equalsIgnoreCase(order)) {
+            comparator = comparator.reversed();
+        }
+
+        transactionStream = transactionStream.sorted(comparator);
+
+        return transactionStream
+                .map(transactionMapper::toViewDTO)
+                .collect(Collectors.toList());
     }
 }
