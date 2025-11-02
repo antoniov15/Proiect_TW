@@ -53,17 +53,17 @@ public class AccountController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
         accountService.deleteAccount(id);
-        return ResponseEntity.noContent().build(); // Returnează 204 No Content
+        return ResponseEntity.noContent().build();
     }
 
-    // cautare dupa email
+    // GET by email
     @GetMapping("/email/{email}")
     public ResponseEntity<AccountResponseDTO> getAccountByEmail(@PathVariable String email) {
         AccountResponseDTO account = accountService.getAccountByEmail(email);
         return ResponseEntity.ok(account);
     }
 
-    // sortare dupa createdAt
+    // GET ordered by createdAt
     @GetMapping("/sorted")
     public ResponseEntity<List<AccountResponseDTO>> getAccountsSortedByCreationDate(
             @RequestParam(defaultValue = "asc") String direction) {
@@ -71,7 +71,7 @@ public class AccountController {
         return ResponseEntity.ok(accounts);
     }
 
-    // filtrare userName
+    // GET by userName
     @GetMapping("/search")
     public ResponseEntity<List<AccountResponseDTO>> searchAccountsByUsername(
             @RequestParam String username) {

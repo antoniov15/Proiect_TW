@@ -24,7 +24,7 @@ public class AccountService {
         this.accountMapper = accountMapper;
     }
 
-    // metode CRUD
+    /// CRUD
     // Create POST
     public AccountResponseDTO createAccount(AccountCreateDTO createDTO) {
         accountRepository.findByEmail(createDTO.getEmail()).ifPresent(account -> {
@@ -48,7 +48,7 @@ public class AccountService {
         return accountMapper.accountsToAccountResponseDTOs(accounts);
     }
 
-    // Update
+    // Update PUT
     public AccountResponseDTO updateAccount(Long id, AccountCreateDTO updateDTO) {
         Account existingAccount = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id " + id + " not found"));
@@ -61,14 +61,14 @@ public class AccountService {
         return accountMapper.accountToAccountResponseDTO(updatedAccount);
     }
 
-    // Delete
+    // DELETE
     public void deleteAccount(Long id) {
         Account existingAccount = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id " + id + " not found"));
         accountRepository.delete(existingAccount);
     }
 
-    // Căutare după email
+    // GET by email
     public AccountResponseDTO getAccountByEmail(String email) {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Contul cu email-ul " + email + " nu a fost găsit."));
@@ -76,9 +76,8 @@ public class AccountService {
         return accountMapper.accountToAccountResponseDTO(account);
     }
 
-    // sortare duoa createdAt
+    // GET ordered by createdAt
     public List<AccountResponseDTO> getAccountsSortedByCreationDate(String direction) {
-        // Validăm direcția sortării
         Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Sort sort = Sort.by(sortDirection, "createdAt");
 
@@ -86,7 +85,7 @@ public class AccountService {
         return accountMapper.accountsToAccountResponseDTOs(accounts);
     }
 
-    // cautare după userName
+    // GET by userName
     public List<AccountResponseDTO> findAccountsByUsernameContaining(String usernameFragment) {
         List<Account> accounts = accountRepository.findByUserNameContainingIgnoreCase(usernameFragment);
         return accountMapper.accountsToAccountResponseDTOs(accounts);
