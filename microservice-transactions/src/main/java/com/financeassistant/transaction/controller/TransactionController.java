@@ -82,4 +82,19 @@ public class TransactionController {
 
         return new ResponseEntity<>(transactions, HttpStatus.OK);
     }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<TransactionViewDTO>> filterTransactionByType(@RequestParam TransactionType type) {
+        List<TransactionViewDTO> transactions = transactionService.getTransactionsByType(type);
+        return new ResponseEntity<>(transactions, HttpStatus.OK);
+    }
+
+    @GetMapping("/sort")
+    public ResponseEntity<List<TransactionViewDTO>> sortTransactions(
+            @RequestParam String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String order
+    ) {
+        List<TransactionViewDTO> transactions = transactionService.getSortedTransactions(sortBy, order);
+        return new ResponseEntity<>(transactions, HttpStatus.OK);
+    }
 }

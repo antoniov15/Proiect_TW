@@ -97,6 +97,39 @@ public class TransactionService {
             transactionStream = transactionStream.filter(t -> t.getType() == type);
         }
 
+        Comparator<Transaction> comparator = createComparator(sortBy, order);
+
+        transactionStream = transactionStream.sorted(comparator);
+
+        return transactionStream
+                .map(transactionMapper::toViewDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<TransactionViewDTO> getTransactionsByType(TransactionType type) {
+
+        List<Transaction> allTransactions = transactionRepository.findAll();
+        return allTransactions.stream()
+                .filter(t -> t.getType() == type)
+                .map(transactionMapper::toViewDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<TransactionViewDTO> getSortedTransactions(String sortBy, String order) {
+
+        List<Transaction> allTransactions = transactionRepository.findAll();
+
+        Comparator<Transaction> comparator = createComparator(sortBy, order);
+
+        return allTransactions.stream()
+                .sorted(comparator)
+                .map(transactionMapper::toViewDTO)
+                .collect(Collectors.toList());
+    }
+
+    private Comparator<Transaction> createComparator(String sortBy, String order) {
         Comparator<Transaction> comparator = switch (sortBy.toLowerCase()) {
             case "amount" -> Comparator.comparing(Transaction::getAmount);
             case "date" -> Comparator.comparing(Transaction::getDate);
@@ -106,11 +139,6 @@ public class TransactionService {
         if ("desc".equalsIgnoreCase(order)) {
             comparator = comparator.reversed();
         }
-
-        transactionStream = transactionStream.sorted(comparator);
-
-        return transactionStream
-                .map(transactionMapper::toViewDTO)
-                .collect(Collectors.toList());
+        return comparator;
     }
 }
