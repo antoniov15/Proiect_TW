@@ -3,6 +3,8 @@ package org.example.microserviceaccount.controller;
 import jakarta.validation.Valid;
 import org.example.microserviceaccount.dto.AccountCreateDTO;
 import org.example.microserviceaccount.dto.AccountResponseDTO;
+import org.example.microserviceaccount.dto.LoginRequestDTO; // Import nou
+import org.example.microserviceaccount.dto.ResetPasswordDTO; // Import nou
 import org.example.microserviceaccount.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,18 @@ public class AccountController {
     @Autowired
     public AccountController(AccountService accountService) {
         this.accountService = accountService;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AccountResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginDTO) {
+        AccountResponseDTO responseDTO = accountService.login(loginDTO);
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<AccountResponseDTO> resetPassword(@Valid @RequestBody ResetPasswordDTO resetDTO) {
+        AccountResponseDTO responseDTO = accountService.resetPassword(resetDTO.getEmail(), resetDTO.getNewPassword());
+        return ResponseEntity.ok(responseDTO);
     }
 
     // Create (POST)

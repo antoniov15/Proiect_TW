@@ -1,36 +1,52 @@
 package org.example.microserviceaccount.service;
 
+import jakarta.validation.Valid;
 import org.example.microserviceaccount.dto.AccountCreateDTO;
 import org.example.microserviceaccount.dto.AccountResponseDTO;
+import org.example.microserviceaccount.dto.LoginRequestDTO;
+import org.example.microserviceaccount.dto.ResetPasswordDTO;
 import org.example.microserviceaccount.entity.Account;
 import org.example.microserviceaccount.exception.ResourceNotFoundException;
 import org.example.microserviceaccount.mapper.AccountMapper;
 import org.example.microserviceaccount.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AccountService(AccountRepository accountRepository, AccountMapper accountMapper) {
+    public AccountService(AccountRepository accountRepository, AccountMapper accountMapper, PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
         this.accountMapper = accountMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /// CRUD
     // Create POST
     public AccountResponseDTO createAccount(AccountCreateDTO createDTO) {
+        // verif mail si username
         accountRepository.findByEmail(createDTO.getEmail()).ifPresent(account -> {
             throw new IllegalArgumentException("Email " + createDTO.getEmail() + " already in use");
         });
+
+        accountRepository.findByUserName(createDTO.getUserName()).ifPresent(account -> {
+            throw new IllegalArgumentException("Username " + createDTO.getUserName() + " already in use");
+        });
+
         Account newAccount = accountMapper.accountCreateDTOToAccount(createDTO);
+
+        newAccount.setPassword(passwordEncoder.encode(newAccount.getPassword()));
+
         Account savedAccount = accountRepository.save(newAccount);
         return accountMapper.accountToAccountResponseDTO(savedAccount);
     }
@@ -52,6 +68,18 @@ public class AccountService {
     public AccountResponseDTO updateAccount(Long id, AccountCreateDTO updateDTO) {
         Account existingAccount = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id " + id + " not found"));
+
+        accountRepository.findByEmail(updateDTO.getEmail()).ifPresent(account -> {
+            if (!account.getId().equals(id)) {
+                throw new IllegalArgumentException("Email " + updateDTO.getEmail() + " already in use");
+            }
+        });
+
+        accountRepository.findByUserName(updateDTO.getUserName()).ifPresent(account -> {
+            if (!account.getId().equals(id)) {
+                throw new IllegalArgumentException("Username " + updateDTO.getUserName() + " already in use");
+            }
+        });
 
         existingAccount.setUserName(updateDTO.getUserName());
         existingAccount.setEmail(updateDTO.getEmail());
@@ -89,5 +117,28 @@ public class AccountService {
     public List<AccountResponseDTO> findAccountsByUsernameContaining(String usernameFragment) {
         List<Account> accounts = accountRepository.findByUserNameContainingIgnoreCase(usernameFragment);
         return accountMapper.accountsToAccountResponseDTOs(accounts);
+    }
+
+    // authentication method
+    public AccountResponseDTO login(LoginRequestDTO loginDTO) {
+        Account account = accountRepository.findByEmail(loginDTO.getLoginIdentifier())
+                .or(() -> accountRepository.findByUserName(loginDTO.getLoginIdentifier()))
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid credentials"));
+
+        if (passwordEncoder.matches(loginDTO.getPassword(), account.getPassword())) {
+            return accountMapper.accountToAccountResponseDTO(account);
+        } else {
+            throw new ResourceNotFoundException("Invalid credentials");
+        }
+    }
+
+    public AccountResponseDTO resetPassword(String email, String newPassword) {
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Account with email " + email + " not found"));
+
+        account.setPassword(passwordEncoder.encode(newPassword));
+
+        Account updatedAccount = accountRepository.save(account);
+        return accountMapper.accountToAccountResponseDTO(updatedAccount);
     }
 }
