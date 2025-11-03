@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-//@EnableWebSecurity
+@EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
     @Bean
@@ -25,8 +25,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/v1/accounts", "/api/v1/accounts/login", "/api/v1/accounts/reset-password").permitAll()
-                        .anyRequest().authenticated()
+//                        .requestMatchers("/api/v1/accounts", "/api/v1/accounts/login", "/api/v1/accounts/reset-password").permitAll()
+                                .requestMatchers("/api/v1/accounts/**").permitAll()
+                                .anyRequest().authenticated()
                 );
         return http.build();
     }
