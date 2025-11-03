@@ -29,8 +29,14 @@ public class Account {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDate createdAt;
 
+    @Column(name = "role", nullable = false)
+    private String role;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDate.now();
+        if(this.role == null) {
+            this.role = "USER";
+        }
     }
 }
