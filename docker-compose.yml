@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  microservice-account:
+    build:
+      context: ./microservice-account
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - microservices-network
+
+  microservice-transactions:
+    build:
+      context: ./microservice-transactions
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    networks:
+      - microservices-network
+
+  microservice-ai:
+    build:
+      context: ./microservice-ai
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8080"
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
