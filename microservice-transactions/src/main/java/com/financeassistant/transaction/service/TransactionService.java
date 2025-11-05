@@ -9,7 +9,7 @@ import com.financeassistant.transaction.entity.TransactionType;
 import com.financeassistant.transaction.mapper.TransactionMapper;
 import com.financeassistant.transaction.repository.CategoryRepository;
 import com.financeassistant.transaction.repository.TransactionRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.financeassistant.transaction.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +37,7 @@ public class TransactionService {
     @Transactional
     public TransactionViewDTO createTransaction(CreateTransactionDTO dto) {
         Category category = categoryRepository.findById(dto.getCategoryId())
-            .orElseThrow(() -> new EntityNotFoundException("Invalid category ID"));
+            .orElseThrow(() -> new ResourceNotFoundException("Invalid category ID"));
 
         Transaction newTransaction = new Transaction();
         newTransaction.setUserId(dto.getUserId());
@@ -55,7 +55,7 @@ public class TransactionService {
     @Transactional(readOnly = true)
     public TransactionViewDTO getTransactionById(Long id) {
         Transaction transaction = transactionRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Transaction not found with ID: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Transaction not found with ID: " + id));
 
         return transactionMapper.toViewDTO(transaction);
     }
@@ -63,10 +63,10 @@ public class TransactionService {
     @Transactional
     public TransactionViewDTO updateTransaction(Long id, UpdateTransactionDTO dto) {
         Transaction existingTransaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Transaction not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found with ID: " + id));
 
         Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new EntityNotFoundException("Category not found with ID: " + dto.getCategoryId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + dto.getCategoryId()));
 
         existingTransaction.setAmount(dto.getAmount());
         existingTransaction.setDate(dto.getDate());
@@ -81,7 +81,7 @@ public class TransactionService {
     @Transactional
     public void deleteTransaction(Long id) {
         if(!transactionRepository.existsById(id)) {
-            throw new EntityNotFoundException("Transaction not found with ID: " + id);
+            throw new ResourceNotFoundException("Transaction not found with ID: " + id);
         }
         transactionRepository.deleteById(id);
     }
