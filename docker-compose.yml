@@ -1,24 +1,7 @@
 version: '3.8'
 
 services:
-  microservice-account:
-    build:
-      context: ./microservice-account
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    networks:
-      - microservices-network
-
-  microservice-transactions:
-    build:
-      context: ./microservice-transactions
-      dockerfile: Dockerfile
-    ports:
-      - "8081:8080"
-    networks:
-      - microservices-network
-
+  #--------------- Microservice AI ---------------
   microservice-ai:
     build:
       context: ./microservice-ai
@@ -27,7 +10,38 @@ services:
       - "8082:8080"
     networks:
       - microservices-network
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  #--------------- PostgreSQL Database ---------------
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5430:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db_setup.sql:/docker-entrypoint-initdb.d/db_setup.sql:ro
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
 networks:
   microservices-network:
     driver: bridge
+
+volumes:
+  pgdata:
