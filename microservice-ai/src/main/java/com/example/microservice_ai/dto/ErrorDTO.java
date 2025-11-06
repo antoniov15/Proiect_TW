@@ -17,7 +17,6 @@ public class ErrorDTO {
         this.errorTime = errorTime;
     }
 
-    // getters & setters
     public String getApiPath() { return apiPath; }
     public void setApiPath(String apiPath) { this.apiPath = apiPath; }
     public HttpStatus getErrorCode() { return errorCode; }

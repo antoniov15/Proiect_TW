@@ -38,7 +38,10 @@ public class ChatServiceImpl implements IChatService{
                     .map(m -> MessageMapper.toEntity(m, savedChat))
                     .map(messageRepository::save)
                     .collect(Collectors.toList());
-            return ChatMapper.toDTO(savedChat, messages.stream().map(MessageMapper::toDTO).collect(Collectors.toList()));
+            
+            List<Message> persisted = messageRepository.findByChatIdOrderByCreatedAtAsc(savedChat.getId());
+            
+            return ChatMapper.toDTO(savedChat, persisted.stream().map(MessageMapper::toDTO).collect(Collectors.toList()));
         }
 
         return ChatMapper.toDTO(savedChat, List.of());
@@ -48,16 +51,21 @@ public class ChatServiceImpl implements IChatService{
     public ChatDTO getChat(Long chatId) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new AccountNotFoundException("Chat not found: " + chatId));
-        List<Message> messages = messageRepository.findByChatId(chatId);
+
+        List<Message> messages = messageRepository.findByChatIdOrderByCreatedAtAsc(chatId);
+
         return ChatMapper.toDTO(chat, messages.stream().map(MessageMapper::toDTO).collect(Collectors.toList()));
     }
 
     @Override
     public List<ChatDTO> listChats() {
         List<Chat> chats = chatRepository.findAll();
+
         return chats.stream().map(c -> {
-            List<Message> messages = messageRepository.findByChatId(c.getId());
+            List<Message> messages = messageRepository.findByChatIdOrderByCreatedAtAsc(c.getId());
+
             return ChatMapper.toDTO(c, messages.stream().map(MessageMapper::toDTO).collect(Collectors.toList()));
+
         }).collect(Collectors.toList());
     }
 
@@ -66,21 +74,26 @@ public class ChatServiceImpl implements IChatService{
     public ChatDTO updateChat(Long chatId, ChatCreateDTO chatCreateDTO) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new AccountNotFoundException("Chat not found: " + chatId));
-        if (chatCreateDTO.getTitle() != null) chat.setTitle(chatCreateDTO.getTitle());
+
+        if (chatCreateDTO.getTitle() != null) 
+            chat.setTitle(chatCreateDTO.getTitle());
+
         chat = chatRepository.save(chat);
 
-        List<Message> messages = messageRepository.findByChatId(chat.getId());
+        List<Message> messages = messageRepository.findByChatIdOrderByCreatedAtAsc(chat.getId());
+
         return ChatMapper.toDTO(chat, messages.stream().map(MessageMapper::toDTO).collect(Collectors.toList()));
     }
 
     @Override
     @Transactional
     public void deleteChat(Long chatId) {
-        // remove messages first to respect FK constraint
-        List<Message> messages = messageRepository.findByChatId(chatId);
+        List<Message> messages = messageRepository.findByChatIdOrderByCreatedAtAsc(chatId);
+
         if (!messages.isEmpty()) {
             messageRepository.deleteAll(messages);
         }
+
         chatRepository.deleteById(chatId);
     }
 
@@ -89,15 +102,21 @@ public class ChatServiceImpl implements IChatService{
     public MessageDTO addMessage(Long chatId, MessageCreateDTO messageCreateDTO) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new AccountNotFoundException("Chat not found: " + chatId));
+
         Message message = MessageMapper.toEntity(messageCreateDTO, chat);
+
         message = messageRepository.save(message);
+
         return MessageMapper.toDTO(message);
     }
 
     @Override
     public List<MessageDTO> getMessagesForChat(Long chatId) {
-        if (!chatRepository.existsById(chatId)) throw new AccountNotFoundException("Chat not found: " + chatId);
-        List<Message> messages = messageRepository.findByChatId(chatId);
+        if (!chatRepository.existsById(chatId)) 
+            throw new AccountNotFoundException("Chat not found: " + chatId);
+
+        List<Message> messages = messageRepository.findByChatIdOrderByCreatedAtAsc(chatId);
+
         return messages.stream().map(MessageMapper::toDTO).collect(Collectors.toList());
     }
 

@@ -13,7 +13,6 @@ public class MessageMapper {
 		try {
 			roleEnum = Role.valueOf(dto.getRole().toUpperCase());
 		} catch (Exception e) {
-			// default to USER if unknown
 			roleEnum = Role.USER;
 		}
 		Message m = new Message(roleEnum, dto.getContent(), chat);
