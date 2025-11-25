@@ -3,11 +3,29 @@ version: '3.8'
 services:
   #--------------- Microservice AI ---------------
   microservice-ai:
+  # eureka-server and api-gateway services will be added here before running the full stack
+
+  microservice-account:
+    build:
+      context: ./microservice-account
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8080"
+    networks:
+      - microservices-network
+
+  microservice-transactions:
     build:
       context: ./microservice-ai
       dockerfile: Dockerfile
+    environment:
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka
+      - TRANSACTION_DB_URL=jdbc:postgresql://postgres:5432/finance_app_db
+      - TRANSACTION_DB_USERNAME=postgres
+      - TRANSACTION_DB_PASSWORD=postgres
     ports:
       - "8082:8080"
+      - "8082:8082"
     networks:
       - microservices-network
     environment:
@@ -33,6 +51,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db_setup.sql:/docker-entrypoint-initdb.d/db_setup.sql:ro
+      - "8084:8080"
     networks:
       - microservices-network
     healthcheck:
