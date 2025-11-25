@@ -60,6 +60,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
 
   #--------------- Microservice AI ---------------
   microservice-ai:
@@ -81,6 +83,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
 
   #--------------- Microservice Transactions ---------------
   microservice-transactions:
@@ -93,12 +97,15 @@ services:
       TRANSACTION_DB_USERNAME: ${POSTGRES_USER}
       TRANSACTION_DB_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
     ports:
       - "8082:8082"
     networks:
       - microservices-network
     depends_on:
       postgres:
+        condition: service_healthy
+      eurekaserver:
         condition: service_healthy
 
 networks:
