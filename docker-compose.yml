@@ -36,7 +36,7 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-finance_app_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -54,7 +54,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
     ports:
-      - "8081:8081"
+      - "${ACCOUNT_SERVICE_PORT}:8081"
     networks:
       - microservices-network
     depends_on:
@@ -77,7 +77,7 @@ services:
       AI_API_KEY: ${AI_API_KEY}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
     ports:
-      - "8080:8080"
+      - "${AI_SERVICE_PORT}:8080"
     networks:
       - microservices-network
     depends_on:
@@ -99,7 +99,7 @@ services:
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
     ports:
-      - "8082:8082"
+      - "${TRANSACTION_SERVICE_PORT}:8082"
     networks:
       - microservices-network
     depends_on:
