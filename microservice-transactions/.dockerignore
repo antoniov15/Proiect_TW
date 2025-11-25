@@ -1,0 +1,12 @@
+# keep the build context lean for Docker multi-stage builds
+.git
+.gitignore
+.idea/
+*.iml
+**/.DS_Store
+
+# Maven outputs rebuilt inside the container
+target/
+
+# Misc local artifacts
+*.log
