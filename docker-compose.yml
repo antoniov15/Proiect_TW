@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  #--------------- Microservice AI ---------------
+  microservice-ai:
+  # eureka-server and api-gateway services will be added here before running the full stack
+
+  microservice-account:
+    build:
+      context: ./microservice-account
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8080"
+    networks:
+      - microservices-network
+
+  microservice-transactions:
+    build:
+      context: ./microservice-ai
+      dockerfile: Dockerfile
+    environment:
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka
+      - TRANSACTION_DB_URL=jdbc:postgresql://postgres:5432/finance_app_db
+      - TRANSACTION_DB_USERNAME=postgres
+      - TRANSACTION_DB_PASSWORD=postgres
+    ports:
+      - "8082:8080"
+      - "8082:8082"
+    networks:
+      - microservices-network
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      AI_API_URL: ${AI_API_URL}
+      
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  #--------------- PostgreSQL Database ---------------
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5430:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db_setup.sql:/docker-entrypoint-initdb.d/db_setup.sql:ro
+      - "8084:8080"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+networks:
+  microservices-network:
+    driver: bridge
+
+volumes:
+  pgdata:

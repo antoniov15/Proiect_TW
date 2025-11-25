@@ -1,5 +1,6 @@
-CREATE DATABASE finance_app_db;
+CREATE SCHEMA IF NOT EXISTS account_schema;
+CREATE SCHEMA IF NOT EXISTS transaction_schema;
+CREATE SCHEMA IF NOT EXISTS ai_schema;
 
-CREATE SCHEMA account_schema;
-CREATE SCHEMA transaction_schema;
-CREATE SCHEMA budgeting_schema;
+
+-- ALTER DATABASE finance_app_db SET search_path TO public, account_schema, transaction_schema, ai_schema;
