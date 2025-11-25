@@ -1,64 +1,83 @@
 version: '3.8'
 
 services:
-  #--------------- Microservice AI ---------------
-  microservice-ai:
-  # eureka-server and api-gateway services will be added here before running the full stack
-
-  microservice-account:
-    build:
-      context: ./microservice-account
-      dockerfile: Dockerfile
-    ports:
-      - "8083:8080"
-    networks:
-      - microservices-network
-
-  microservice-transactions:
-    build:
-      context: ./microservice-ai
-      dockerfile: Dockerfile
-    environment:
-      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka
-      - TRANSACTION_DB_URL=jdbc:postgresql://postgres:5432/finance_app_db
-      - TRANSACTION_DB_USERNAME=postgres
-      - TRANSACTION_DB_PASSWORD=postgres
-    ports:
-      - "8082:8080"
-      - "8082:8082"
-    networks:
-      - microservices-network
-    environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      AI_API_URL: ${AI_API_URL}
-
-    depends_on:
-      postgres:
-        condition: service_healthy
-
   #--------------- PostgreSQL Database ---------------
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-finance_app_db}
     ports:
-      - "5430:5432"
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db_setup.sql:/docker-entrypoint-initdb.d/db_setup.sql:ro
-      - "8084:8080"
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-finance_app_db}"]
       interval: 5s
-      timeout: 3s
+      timeout: 5s
       retries: 10
+      start_period: 10s
+
+  #--------------- Microservice Account ---------------
+  microservice-account:
+    build:
+      context: ./microservice-account
+      dockerfile: Dockerfile
+    restart: on-failure
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/finance_app_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "8081:8081"
+    networks:
+      - microservices-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  #--------------- Microservice AI ---------------
+  microservice-ai:
+    build:
+      context: ./microservice-ai
+      dockerfile: Dockerfile
+    restart: on-failure
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/finance_app_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      AI_API_URL: ${AI_API_URL:-https://api.openai.com/v1}
+    ports:
+      - "8080:8080"
+    networks:
+      - microservices-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  #--------------- Microservice Transactions ---------------
+  microservice-transactions:
+    build:
+      context: ./microservice-transactions
+      dockerfile: Dockerfile
+    restart: on-failure
+    environment:
+      TRANSACTION_DB_URL: jdbc:postgresql://postgres:5432/finance_app_db
+      TRANSACTION_DB_USERNAME: ${POSTGRES_USER:-postgres}
+      TRANSACTION_DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+    ports:
+      - "8082:8082"
+    networks:
+      - microservices-network
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 networks:
   microservices-network:
