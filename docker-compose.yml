@@ -1,6 +1,25 @@
 version: '3.8'
 
 services:
+  #--------------- Eureka Server ---------------
+  eurekaserver:
+    build:
+      context: ./eurekaserver
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      EUREKA_INSTANCE_HOSTNAME: eurekaserver
+    ports:
+      - "${EUREKA_SERVER_PORT:-8070}:8070"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8070/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
   #--------------- PostgreSQL Database ---------------
   postgres:
     image: postgres:16-alpine
