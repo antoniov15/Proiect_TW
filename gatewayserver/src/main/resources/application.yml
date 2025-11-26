@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: gatewayserver
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: account-service
+          uri: lb://microservice-account
+          predicates:
+            - Path=/microservice-account/**
+          filters:
+            - StripPrefix=1
+
+        - id: transaction-service
+          uri: lb://microservice-transactions
+          predicates:
+            - Path=/microservice-transactions/**
+          filters:
+            - StripPrefix=1
+
+        - id: ai-service
+          uri: lb://microservice-ai
+          predicates:
+            - Path=/microservice-ai/**
+          filters:
+            - StripPrefix=1
+
+server:
+  port: 8072
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8070/eureka/}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
