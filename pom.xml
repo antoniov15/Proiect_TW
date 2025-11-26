@@ -17,6 +17,10 @@
     <packaging>pom</packaging>
     <modules>
         <module>microservice-account</module>
+        <module>microservice-transactions</module>
+        <module>microservice-ai</module>
+        <module>eurekaserver</module>
+        <module>gatewayserver</module>
     </modules>
 
     <properties>
