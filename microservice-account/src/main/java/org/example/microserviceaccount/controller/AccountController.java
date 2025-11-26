@@ -55,6 +55,7 @@ public class AccountController {
     @GetMapping
 //    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AccountResponseDTO>> getAllAccounts() {
+        org.slf4j.LoggerFactory.getLogger(getClass()).info("GetAll request received");
         List<AccountResponseDTO> responseDTOs = accountService.getAllAccounts();
         return ResponseEntity.ok(responseDTOs);
     }
