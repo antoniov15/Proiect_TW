@@ -8,6 +8,8 @@ target/
 .idea/dataSources.local.xml
 .env
 
+.python-scripts/
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
