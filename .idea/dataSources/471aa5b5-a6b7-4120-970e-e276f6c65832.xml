@@ -3,9 +3,9 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.53">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <IntrospectionStateNumber>846</IntrospectionStateNumber>
+      <IntrospectionStateNumber>873</IntrospectionStateNumber>
       <ServerVersion>18.0</ServerVersion>
-      <StartupTime>1761647735</StartupTime>
+      <StartupTime>1762986627</StartupTime>
       <TimeZones>true ACDT
 true ACSST
 false ACST
@@ -800,7 +800,7 @@ false Zulu
 14860||10|C|G
 14860||-9223372036854775808|U|G
 14860||10|U|G</Grants>
-      <IntrospectionStateNumber>847</IntrospectionStateNumber>
+      <IntrospectionStateNumber>873</IntrospectionStateNumber>
       <ObjectId>16441</ObjectId>
       <OwnerName>postgres</OwnerName>
     </database>
@@ -816,7 +816,7 @@ false Zulu
 14860||10|C|G
 14860||-9223372036854775808|U|G
 14860||10|U|G</Grants>
-      <IntrospectionStateNumber>846</IntrospectionStateNumber>
+      <IntrospectionStateNumber>866</IntrospectionStateNumber>
       <ObjectId>5</ObjectId>
       <OwnerName>postgres</OwnerName>
     </database>
@@ -4319,22 +4319,22 @@ false Zulu
     </language>
     <schema id="270" parent="2" name="account_schema">
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
-      <LastIntrospectionL1Xid>847</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>847</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>847</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>873</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>873</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>873</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-11-04.10:26:20</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-11-29.16:35:52</LastIntrospectionLocalTimestamp>
       <ObjectId>16445</ObjectId>
       <StateNumber>794</StateNumber>
       <OwnerName>postgres</OwnerName>
     </schema>
     <schema id="271" parent="2" name="budgeting_schema">
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
-      <LastIntrospectionL1Xid>847</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>847</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>847</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>873</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>873</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>873</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-11-04.10:26:20</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-11-29.16:35:52</LastIntrospectionLocalTimestamp>
       <ObjectId>16447</ObjectId>
       <StateNumber>796</StateNumber>
       <OwnerName>postgres</OwnerName>
@@ -4354,22 +4354,22 @@ false Zulu
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <LastIntrospectionL1Xid>812</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>812</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>812</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>872</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>872</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>872</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-10-29.08:07:32</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-11-29.16:33:12</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>546</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
     </schema>
     <schema id="275" parent="2" name="transaction_schema">
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
-      <LastIntrospectionL1Xid>847</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>847</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>847</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>873</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>873</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>873</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-11-04.10:26:20</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-11-29.16:35:52</LastIntrospectionLocalTimestamp>
       <ObjectId>16446</ObjectId>
       <StateNumber>795</StateNumber>
       <OwnerName>postgres</OwnerName>
@@ -7816,16 +7816,65 @@ false Zulu
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <LastIntrospectionL1Xid>846</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>846</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>846</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>866</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>866</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>866</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-11-04.10:26:18</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-11-29.16:31:12</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>546</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
     </schema>
-    <sequence id="526" parent="275" name="categories_id_seq">
+    <sequence id="526" parent="270" name="accounts_id_seq">
+      <DetailsLevel>2</DetailsLevel>
+      <ObjectId>16490</ObjectId>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StartValue>1</StartValue>
+      <StateNumber>859</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <OwnerName>postgres</OwnerName>
+    </sequence>
+    <table id="527" parent="270" name="accounts">
+      <DetailsLevel>2</DetailsLevel>
+      <ObjectId>16491</ObjectId>
+      <StateNumber>859</StateNumber>
+      <AccessMethodId>2</AccessMethodId>
+      <OwnerName>postgres</OwnerName>
+    </table>
+    <routine id="528" parent="275" name="archive_old_transactions">
+      <ArgumentsDefinition>p_cutoff_date date</ArgumentsDefinition>
+      <DetailsLevel>3</DetailsLevel>
+      <ObjectId>16521</ObjectId>
+      <ResultsDefinition>integer</ResultsDefinition>
+      <Rows>0.0</Rows>
+      <SourceTextLength>281</SourceTextLength>
+      <StateNumber>870</StateNumber>
+      <LanguageName>plpgsql</LanguageName>
+      <OwnerName>postgres</OwnerName>
+    </routine>
+    <routine id="529" parent="275" name="calculate_monthly_expense">
+      <ArgumentsDefinition>p_user_id bigint, p_month integer, p_year integer</ArgumentsDefinition>
+      <DetailsLevel>3</DetailsLevel>
+      <ObjectId>16519</ObjectId>
+      <ResultsDefinition>numeric</ResultsDefinition>
+      <Rows>0.0</Rows>
+      <SourceTextLength>324</SourceTextLength>
+      <StateNumber>868</StateNumber>
+      <LanguageName>plpgsql</LanguageName>
+      <OwnerName>postgres</OwnerName>
+    </routine>
+    <routine id="530" parent="275" name="check_budget_status">
+      <ArgumentsDefinition>p_user_id bigint, p_budget_limit numeric</ArgumentsDefinition>
+      <DetailsLevel>3</DetailsLevel>
+      <ObjectId>16520</ObjectId>
+      <ResultsDefinition>character varying</ResultsDefinition>
+      <Rows>0.0</Rows>
+      <SourceTextLength>480</SourceTextLength>
+      <StateNumber>869</StateNumber>
+      <LanguageName>plpgsql</LanguageName>
+      <OwnerName>postgres</OwnerName>
+    </routine>
+    <sequence id="531" parent="275" name="categories_id_seq">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>16448</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
@@ -7834,7 +7883,7 @@ false Zulu
       <StoredType>bigint|0s</StoredType>
       <OwnerName>postgres</OwnerName>
     </sequence>
-    <sequence id="527" parent="275" name="transactions_id_seq">
+    <sequence id="532" parent="275" name="transactions_id_seq">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>16456</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
@@ -7843,21 +7892,21 @@ false Zulu
       <StoredType>bigint|0s</StoredType>
       <OwnerName>postgres</OwnerName>
     </sequence>
-    <table id="528" parent="275" name="categories">
+    <table id="533" parent="275" name="categories">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>16449</ObjectId>
       <StateNumber>818</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
-    <table id="529" parent="275" name="transactions">
+    <table id="534" parent="275" name="transactions">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>16457</ObjectId>
       <StateNumber>818</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
-    <object-type id="530" parent="525" name="position_enum">
+    <object-type id="535" parent="525" name="position_enum">
       <DetailsLevel>2</DetailsLevel>
       <Labels>STUDENT
 TEACHER
@@ -7869,7 +7918,25 @@ ADMINISTRATOR</Labels>
       <SubKind>enum</SubKind>
       <OwnerName>postgres</OwnerName>
     </object-type>
-    <sequence id="531" parent="525" name="person_person_id_seq">
+    <sequence id="536" parent="525" name="course_course_id_seq">
+      <DetailsLevel>2</DetailsLevel>
+      <ObjectId>16506</ObjectId>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StartValue>1</StartValue>
+      <StateNumber>862</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <OwnerName>postgres</OwnerName>
+    </sequence>
+    <sequence id="537" parent="525" name="enrollments_id_seq">
+      <DetailsLevel>2</DetailsLevel>
+      <ObjectId>16477</ObjectId>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StartValue>1</StartValue>
+      <StateNumber>856</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <OwnerName>postgres</OwnerName>
+    </sequence>
+    <sequence id="538" parent="525" name="person_person_id_seq">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>16417</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
@@ -7878,14 +7945,139 @@ ADMINISTRATOR</Labels>
       <StoredType>bigint|0s</StoredType>
       <OwnerName>postgres</OwnerName>
     </sequence>
-    <table id="532" parent="525" name="person">
+    <table id="539" parent="525" name="course">
+      <DetailsLevel>2</DetailsLevel>
+      <ObjectId>16507</ObjectId>
+      <StateNumber>862</StateNumber>
+      <AccessMethodId>2</AccessMethodId>
+      <OwnerName>postgres</OwnerName>
+    </table>
+    <table id="540" parent="525" name="enrollments">
+      <DetailsLevel>2</DetailsLevel>
+      <ObjectId>16478</ObjectId>
+      <StateNumber>856</StateNumber>
+      <AccessMethodId>2</AccessMethodId>
+      <OwnerName>postgres</OwnerName>
+    </table>
+    <table id="541" parent="525" name="person">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>16418</ObjectId>
       <StateNumber>772</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
-    <column id="533" parent="528" name="id">
+    <column id="542" parent="527" name="id">
+      <IdentityKind>by-default</IdentityKind>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StateNumber>859</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <SequenceId>16490</SequenceId>
+      <TypeId>20</TypeId>
+    </column>
+    <column id="543" parent="527" name="created_at">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StateNumber>859</StateNumber>
+      <StoredType>date|0s</StoredType>
+      <TypeId>1082</TypeId>
+    </column>
+    <column id="544" parent="527" name="email">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StateNumber>859</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="545" parent="527" name="password">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StateNumber>859</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="546" parent="527" name="role">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StateNumber>859</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="547" parent="527" name="user_name">
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StateNumber>859</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <index id="548" parent="527" name="accounts_pkey">
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16502</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>859</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+    </index>
+    <index id="549" parent="527" name="uk6u7v06wrrqeppb5k5abl0kqva">
+      <ColNames>user_name</ColNames>
+      <ObjectId>16504</ObjectId>
+      <StateNumber>861</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+      <CollationNames>default</CollationNames>
+      <CollationIds>100</CollationIds>
+      <CollationParentNames>pg_catalog</CollationParentNames>
+    </index>
+    <key id="550" parent="527" name="accounts_pkey">
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16503</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>859</StateNumber>
+      <UnderlyingIndexId>16502</UnderlyingIndexId>
+    </key>
+    <key id="551" parent="527" name="uk6u7v06wrrqeppb5k5abl0kqva">
+      <ObjectId>16505</ObjectId>
+      <StateNumber>861</StateNumber>
+      <UnderlyingIndexId>16504</UnderlyingIndexId>
+    </key>
+    <argument id="552" parent="528">
+      <ArgumentDirection>R</ArgumentDirection>
+      <StoredType>integer|0s</StoredType>
+    </argument>
+    <argument id="553" parent="528" name="p_cutoff_date">
+      <Position>1</Position>
+      <StoredType>date|0s</StoredType>
+    </argument>
+    <argument id="554" parent="529">
+      <ArgumentDirection>R</ArgumentDirection>
+      <StoredType>numeric|0s</StoredType>
+    </argument>
+    <argument id="555" parent="529" name="p_user_id">
+      <Position>1</Position>
+      <StoredType>bigint|0s</StoredType>
+    </argument>
+    <argument id="556" parent="529" name="p_month">
+      <Position>2</Position>
+      <StoredType>integer|0s</StoredType>
+    </argument>
+    <argument id="557" parent="529" name="p_year">
+      <Position>3</Position>
+      <StoredType>integer|0s</StoredType>
+    </argument>
+    <argument id="558" parent="530">
+      <ArgumentDirection>R</ArgumentDirection>
+      <StoredType>varchar|0s</StoredType>
+    </argument>
+    <argument id="559" parent="530" name="p_user_id">
+      <Position>1</Position>
+      <StoredType>bigint|0s</StoredType>
+    </argument>
+    <argument id="560" parent="530" name="p_budget_limit">
+      <Position>2</Position>
+      <StoredType>numeric|0s</StoredType>
+    </argument>
+    <column id="561" parent="533" name="id">
       <IdentityKind>by-default</IdentityKind>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -7894,14 +8086,14 @@ ADMINISTRATOR</Labels>
       <SequenceId>16448</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="534" parent="528" name="name">
+    <column id="562" parent="533" name="name">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>814</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <index id="535" parent="528" name="categories_pkey">
+    <index id="563" parent="533" name="categories_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16454</ObjectId>
@@ -7910,7 +8102,7 @@ ADMINISTRATOR</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="536" parent="528" name="ukt8o6pivur7nn124jehx7cygw5">
+    <index id="564" parent="533" name="ukt8o6pivur7nn124jehx7cygw5">
       <ColNames>name</ColNames>
       <ObjectId>16470</ObjectId>
       <StateNumber>817</StateNumber>
@@ -7920,25 +8112,25 @@ ADMINISTRATOR</Labels>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="537" parent="528" name="categories_pkey">
+    <key id="565" parent="533" name="categories_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16455</ObjectId>
       <Primary>1</Primary>
       <StateNumber>814</StateNumber>
       <UnderlyingIndexId>16454</UnderlyingIndexId>
     </key>
-    <key id="538" parent="528" name="ukt8o6pivur7nn124jehx7cygw5">
+    <key id="566" parent="533" name="ukt8o6pivur7nn124jehx7cygw5">
       <ObjectId>16471</ObjectId>
       <StateNumber>817</StateNumber>
       <UnderlyingIndexId>16470</UnderlyingIndexId>
     </key>
-    <check id="539" parent="529" name="transactions_type_check">
+    <check id="567" parent="534" name="transactions_type_check">
       <ColNames>type</ColNames>
       <ObjectId>16460</ObjectId>
       <Predicate>(type)::text = ANY ((ARRAY[&apos;INCOME&apos;::character varying, &apos;EXPENSE&apos;::character varying])::text[])</Predicate>
       <StateNumber>815</StateNumber>
     </check>
-    <column id="540" parent="529" name="id">
+    <column id="568" parent="534" name="id">
       <IdentityKind>by-default</IdentityKind>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -7947,54 +8139,54 @@ ADMINISTRATOR</Labels>
       <SequenceId>16456</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="541" parent="529" name="amount">
+    <column id="569" parent="534" name="amount">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>815</StateNumber>
       <StoredType>numeric(38,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="542" parent="529" name="date">
+    <column id="570" parent="534" name="date">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>815</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="543" parent="529" name="description">
+    <column id="571" parent="534" name="description">
       <Position>4</Position>
       <StateNumber>815</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="544" parent="529" name="type">
+    <column id="572" parent="534" name="type">
       <Position>5</Position>
       <StateNumber>815</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="545" parent="529" name="user_id">
+    <column id="573" parent="534" name="user_id">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StateNumber>815</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="546" parent="529" name="category_id">
+    <column id="574" parent="534" name="category_id">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StateNumber>815</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <foreign-key id="547" parent="529" name="fksqqi7sneo04kast0o138h19mv">
+    <foreign-key id="575" parent="534" name="fksqqi7sneo04kast0o138h19mv">
       <ColNames>category_id</ColNames>
       <ObjectId>16472</ObjectId>
       <StateNumber>818</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16449</RefTableId>
     </foreign-key>
-    <index id="548" parent="529" name="transactions_pkey">
+    <index id="576" parent="534" name="transactions_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16468</ObjectId>
@@ -8003,14 +8195,132 @@ ADMINISTRATOR</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="549" parent="529" name="transactions_pkey">
+    <key id="577" parent="534" name="transactions_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16469</ObjectId>
       <Primary>1</Primary>
       <StateNumber>815</StateNumber>
       <UnderlyingIndexId>16468</UnderlyingIndexId>
     </key>
-    <column id="550" parent="532" name="person_id">
+    <column id="578" parent="539" name="course_id">
+      <IdentityKind>by-default</IdentityKind>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StateNumber>862</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <SequenceId>16506</SequenceId>
+      <TypeId>20</TypeId>
+    </column>
+    <column id="579" parent="539" name="course_code">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StateNumber>862</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="580" parent="539" name="description">
+      <Position>3</Position>
+      <StateNumber>862</StateNumber>
+      <StoredType>varchar(1000)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="581" parent="539" name="name">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StateNumber>862</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <index id="582" parent="539" name="course_pkey">
+      <ColNames>course_id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16515</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>862</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+    </index>
+    <index id="583" parent="539" name="ukpbtxfti950chth4yw1wafaf9f">
+      <ColNames>course_code</ColNames>
+      <ObjectId>16517</ObjectId>
+      <StateNumber>864</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+      <CollationNames>default</CollationNames>
+      <CollationIds>100</CollationIds>
+      <CollationParentNames>pg_catalog</CollationParentNames>
+    </index>
+    <key id="584" parent="539" name="course_pkey">
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16516</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>862</StateNumber>
+      <UnderlyingIndexId>16515</UnderlyingIndexId>
+    </key>
+    <key id="585" parent="539" name="ukpbtxfti950chth4yw1wafaf9f">
+      <ObjectId>16518</ObjectId>
+      <StateNumber>864</StateNumber>
+      <UnderlyingIndexId>16517</UnderlyingIndexId>
+    </key>
+    <column id="586" parent="540" name="id">
+      <IdentityKind>by-default</IdentityKind>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StateNumber>856</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <SequenceId>16477</SequenceId>
+      <TypeId>20</TypeId>
+    </column>
+    <column id="587" parent="540" name="course_code">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StateNumber>856</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="588" parent="540" name="person_email">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StateNumber>856</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <index id="589" parent="540" name="enrollments_pkey">
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16486</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>856</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+    </index>
+    <index id="590" parent="540" name="ukfaakns0438ivc5p4vxvxb1skr">
+      <ColNames>person_email
+course_code</ColNames>
+      <ObjectId>16488</ObjectId>
+      <StateNumber>858</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+      <CollationIds>100
+100</CollationIds>
+      <CollationNames>default
+default</CollationNames>
+      <CollationParentNames>pg_catalog
+pg_catalog</CollationParentNames>
+    </index>
+    <key id="591" parent="540" name="enrollments_pkey">
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16487</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>856</StateNumber>
+      <UnderlyingIndexId>16486</UnderlyingIndexId>
+    </key>
+    <key id="592" parent="540" name="ukfaakns0438ivc5p4vxvxb1skr">
+      <ObjectId>16489</ObjectId>
+      <StateNumber>858</StateNumber>
+      <UnderlyingIndexId>16488</UnderlyingIndexId>
+    </key>
+    <column id="593" parent="541" name="person_id">
       <DefaultExpression>nextval(&apos;person_person_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -8019,40 +8329,40 @@ ADMINISTRATOR</Labels>
       <SequenceId>16417</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="551" parent="532" name="firstname">
+    <column id="594" parent="541" name="firstname">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>769</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="552" parent="532" name="lastname">
+    <column id="595" parent="541" name="lastname">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>770</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="553" parent="532" name="position">
+    <column id="596" parent="541" name="position">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>772</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="554" parent="532" name="email">
+    <column id="597" parent="541" name="email">
       <Position>5</Position>
       <StateNumber>768</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="555" parent="532" name="password">
+    <column id="598" parent="541" name="password">
       <Position>6</Position>
       <StateNumber>771</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <index id="556" parent="532" name="person_pkey">
+    <index id="599" parent="541" name="person_pkey">
       <ColNames>person_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16426</ObjectId>
@@ -8061,7 +8371,7 @@ ADMINISTRATOR</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="557" parent="532" name="ukfwmwi44u55bo4rvwsv0cln012">
+    <index id="600" parent="541" name="ukfwmwi44u55bo4rvwsv0cln012">
       <ColNames>email</ColNames>
       <ObjectId>16439</ObjectId>
       <StateNumber>774</StateNumber>
@@ -8071,14 +8381,14 @@ ADMINISTRATOR</Labels>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="558" parent="532" name="person_pkey">
+    <key id="601" parent="541" name="person_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16427</ObjectId>
       <Primary>1</Primary>
       <StateNumber>765</StateNumber>
       <UnderlyingIndexId>16426</UnderlyingIndexId>
     </key>
-    <key id="559" parent="532" name="ukfwmwi44u55bo4rvwsv0cln012">
+    <key id="602" parent="541" name="ukfwmwi44u55bo4rvwsv0cln012">
       <ObjectId>16440</ObjectId>
       <StateNumber>774</StateNumber>
       <UnderlyingIndexId>16439</UnderlyingIndexId>
