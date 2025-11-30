@@ -87,7 +87,7 @@ public class TransactionController {
             @RequestParam(required = false) String order
             ){
 
-        log.info("REST Request to get transactions for userId: {}", userId);
+        log.info("REST Request to get transactions for userId: {}, type: {}, sortBy: {}", userId, type, sortBy);
         List<TransactionViewDTO> transactions = transactionService.getTransactionsByUserId(
                 userId,
                 type,
