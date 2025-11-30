@@ -3,7 +3,7 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.53">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <IntrospectionStateNumber>873</IntrospectionStateNumber>
+      <IntrospectionStateNumber>890</IntrospectionStateNumber>
       <ServerVersion>18.0</ServerVersion>
       <StartupTime>1762986627</StartupTime>
       <TimeZones>true ACDT
@@ -800,7 +800,7 @@ false Zulu
 14860||10|C|G
 14860||-9223372036854775808|U|G
 14860||10|U|G</Grants>
-      <IntrospectionStateNumber>873</IntrospectionStateNumber>
+      <IntrospectionStateNumber>891</IntrospectionStateNumber>
       <ObjectId>16441</ObjectId>
       <OwnerName>postgres</OwnerName>
     </database>
@@ -816,7 +816,7 @@ false Zulu
 14860||10|C|G
 14860||-9223372036854775808|U|G
 14860||10|U|G</Grants>
-      <IntrospectionStateNumber>866</IntrospectionStateNumber>
+      <IntrospectionStateNumber>890</IntrospectionStateNumber>
       <ObjectId>5</ObjectId>
       <OwnerName>postgres</OwnerName>
     </database>
@@ -4319,24 +4319,24 @@ false Zulu
     </language>
     <schema id="270" parent="2" name="account_schema">
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
-      <LastIntrospectionL1Xid>873</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>873</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>873</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>891</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>891</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>891</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-11-29.16:35:52</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-11-29.21:31:47</LastIntrospectionLocalTimestamp>
       <ObjectId>16445</ObjectId>
       <StateNumber>794</StateNumber>
       <OwnerName>postgres</OwnerName>
     </schema>
-    <schema id="271" parent="2" name="budgeting_schema">
+    <schema id="271" parent="2" name="ai_schema">
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
-      <LastIntrospectionL1Xid>873</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>873</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>873</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>891</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>891</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>891</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-11-29.16:35:52</LastIntrospectionLocalTimestamp>
-      <ObjectId>16447</ObjectId>
-      <StateNumber>796</StateNumber>
+      <LastIntrospectionLocalTimestamp>2025-11-29.21:31:47</LastIntrospectionLocalTimestamp>
+      <ObjectId>16523</ObjectId>
+      <StateNumber>884</StateNumber>
       <OwnerName>postgres</OwnerName>
     </schema>
     <schema id="272" parent="2" name="information_schema">
@@ -4354,22 +4354,22 @@ false Zulu
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <LastIntrospectionL1Xid>872</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>872</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>872</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>886</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>886</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>886</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-11-29.16:33:12</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-11-29.21:29:49</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>546</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
     </schema>
     <schema id="275" parent="2" name="transaction_schema">
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
-      <LastIntrospectionL1Xid>873</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>873</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>873</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>891</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>891</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>891</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-11-29.16:35:52</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-11-29.21:31:47</LastIntrospectionLocalTimestamp>
       <ObjectId>16446</ObjectId>
       <StateNumber>795</StateNumber>
       <OwnerName>postgres</OwnerName>
@@ -7816,11 +7816,11 @@ false Zulu
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <LastIntrospectionL1Xid>866</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>866</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>866</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>890</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>890</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>890</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-11-29.16:31:12</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-11-29.21:31:45</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>546</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
@@ -8047,7 +8047,6 @@ ADMINISTRATOR</Labels>
     </argument>
     <argument id="553" parent="528" name="p_cutoff_date">
       <Position>1</Position>
-      <StoredType>date|0s</StoredType>
     </argument>
     <argument id="554" parent="529">
       <ArgumentDirection>R</ArgumentDirection>
@@ -8055,15 +8054,12 @@ ADMINISTRATOR</Labels>
     </argument>
     <argument id="555" parent="529" name="p_user_id">
       <Position>1</Position>
-      <StoredType>bigint|0s</StoredType>
     </argument>
     <argument id="556" parent="529" name="p_month">
       <Position>2</Position>
-      <StoredType>integer|0s</StoredType>
     </argument>
     <argument id="557" parent="529" name="p_year">
       <Position>3</Position>
-      <StoredType>integer|0s</StoredType>
     </argument>
     <argument id="558" parent="530">
       <ArgumentDirection>R</ArgumentDirection>
@@ -8071,11 +8067,9 @@ ADMINISTRATOR</Labels>
     </argument>
     <argument id="559" parent="530" name="p_user_id">
       <Position>1</Position>
-      <StoredType>bigint|0s</StoredType>
     </argument>
     <argument id="560" parent="530" name="p_budget_limit">
       <Position>2</Position>
-      <StoredType>numeric|0s</StoredType>
     </argument>
     <column id="561" parent="533" name="id">
       <IdentityKind>by-default</IdentityKind>

@@ -18,9 +18,10 @@
               <node kind="schema">
                 <name qname="account_schema" />
                 <name qname="transaction_schema" />
-                <name qname="budgeting_schema" />
+                <name qname="ai_schema" />
               </node>
             </node>
+            <node kind="database" qname="postgres" />
           </node>
         </introspection-scope>
       </schema-mapping>

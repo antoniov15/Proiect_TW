@@ -6,6 +6,7 @@ import com.financeassistant.transaction.dto.UpdateTransactionDTO;
 import com.financeassistant.transaction.entity.TransactionType;
 import com.financeassistant.transaction.service.TransactionService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<TransactionViewDTO> createTransaction(@RequestBody CreateTransactionDTO dto) {
+    public ResponseEntity<TransactionViewDTO> createTransaction(@Valid @RequestBody CreateTransactionDTO dto) {
 
         try {
             TransactionViewDTO newTransaction = transactionService.createTransaction(dto);
@@ -46,7 +47,7 @@ public class TransactionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TransactionViewDTO> updateTransaction(@PathVariable Long id, @RequestBody UpdateTransactionDTO dto) {
+    public ResponseEntity<TransactionViewDTO> updateTransaction(@PathVariable Long id, @Valid @RequestBody UpdateTransactionDTO dto) {
         try {
             TransactionViewDTO updatedTransaction = transactionService.updateTransaction(id, dto);
             return new ResponseEntity<>(updatedTransaction, HttpStatus.OK);
