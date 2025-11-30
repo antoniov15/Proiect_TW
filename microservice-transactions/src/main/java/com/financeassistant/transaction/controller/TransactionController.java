@@ -7,6 +7,7 @@ import com.financeassistant.transaction.entity.TransactionType;
 import com.financeassistant.transaction.service.TransactionService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
+@Slf4j
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -28,40 +30,51 @@ public class TransactionController {
     @PostMapping
     public ResponseEntity<TransactionViewDTO> createTransaction(@Valid @RequestBody CreateTransactionDTO dto) {
 
+        log.info("REST Request to create transaction for userId: {}", dto.getUserId());
         try {
             TransactionViewDTO newTransaction = transactionService.createTransaction(dto);
             return new ResponseEntity<>(newTransaction, HttpStatus.CREATED);
         } catch (EntityNotFoundException e) {
+            log.warn("Failed to create transaction: {}", e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TransactionViewDTO> getTransactionById(@PathVariable Long id) {
+
+        log.info("REST Request to get transaction with id: {}", id);
         try {
             TransactionViewDTO transaction = transactionService.getTransactionById(id);
             return new ResponseEntity<>(transaction, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
+            log.warn("Failed to get transaction: {}", e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TransactionViewDTO> updateTransaction(@PathVariable Long id, @Valid @RequestBody UpdateTransactionDTO dto) {
+
+        log.info("REST Request to update transaction with id: {}", id);
         try {
             TransactionViewDTO updatedTransaction = transactionService.updateTransaction(id, dto);
             return new ResponseEntity<>(updatedTransaction, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
+            log.warn("Failed to update transaction: {}", e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
+
+        log.info("REST Request to delete transaction with id: {}", id);
         try {
             transactionService.deleteTransaction(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (EntityNotFoundException e) {
+            log.warn("Failed to delete transaction: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -74,6 +87,7 @@ public class TransactionController {
             @RequestParam(required = false) String order
             ){
 
+        log.info("REST Request to get transactions for userId: {}", userId);
         List<TransactionViewDTO> transactions = transactionService.getTransactionsByUserId(
                 userId,
                 type,
