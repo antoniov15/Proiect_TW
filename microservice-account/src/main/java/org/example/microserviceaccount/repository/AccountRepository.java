@@ -22,7 +22,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Integer countNewUsers(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     // Anonymize user data
-    @Query(value = "SELECT account_schema.anonymizeUserData(:userId)", nativeQuery = true)
+    @Query(value = "SELECT account_schema.anonymize_user_data(:userId)", nativeQuery = true)
     String anonymizeUserData(@Param("userId") Long userId);
 
     // Check account availability

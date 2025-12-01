@@ -1,5 +1,6 @@
 package org.example.microserviceaccount;
 
+import jakarta.persistence.EntityManager;
 import org.example.microserviceaccount.entity.Account;
 import org.example.microserviceaccount.repository.AccountRepository;
 import org.junit.jupiter.api.Assertions;
@@ -24,6 +25,9 @@ public class StoredProcedureTest {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private EntityManager entityManager;
+
     @BeforeEach
     public void setup() {
         // Curățăm baza de date (opțional, @Transactional se ocupă de obicei de asta)
@@ -38,6 +42,8 @@ public class StoredProcedureTest {
         account.setPassword("pass123");
         account.setRole("USER");
         accountRepository.save(account);
+
+        accountRepository.flush();
 
         // user luat
         String resultUserTaken = accountRepository.checkAccountAvailability("new@mail.com", "testUserUnique");
@@ -59,6 +65,7 @@ public class StoredProcedureTest {
 
         accountRepository.save(acc1);
         accountRepository.save(acc2);
+        accountRepository.flush();
 
         LocalDate today = LocalDate.now();
 
@@ -76,10 +83,12 @@ public class StoredProcedureTest {
         account.setRole("USER");
         Account savedAccount = accountRepository.save(account);
         Long userId = savedAccount.getId();
+        accountRepository.flush();
 
         String result = accountRepository.anonymizeUserData(userId);
-
         assertEquals("SUCCESS", result);
+
+        entityManager.clear();
 
         Account updatedAccount = accountRepository.findById(userId).orElseThrow();
 
