@@ -7848,9 +7848,9 @@ false Zulu
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <LastIntrospectionL1Xid>866</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>866</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>866</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>890</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>890</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>890</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
       <LastIntrospectionLocalTimestamp>2025-11-29.22:17:00</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
@@ -8233,7 +8233,6 @@ ADMINISTRATOR</Labels>
     </argument>
     <argument id="583" parent="540" name="p_cutoff_date">
       <Position>1</Position>
-      <StoredType>date|0s</StoredType>
     </argument>
     <argument id="584" parent="541">
       <ArgumentDirection>R</ArgumentDirection>
@@ -8241,15 +8240,12 @@ ADMINISTRATOR</Labels>
     </argument>
     <argument id="585" parent="541" name="p_user_id">
       <Position>1</Position>
-      <StoredType>bigint|0s</StoredType>
     </argument>
     <argument id="586" parent="541" name="p_month">
       <Position>2</Position>
-      <StoredType>integer|0s</StoredType>
     </argument>
     <argument id="587" parent="541" name="p_year">
       <Position>3</Position>
-      <StoredType>integer|0s</StoredType>
     </argument>
     <argument id="588" parent="542">
       <ArgumentDirection>R</ArgumentDirection>
@@ -8257,11 +8253,9 @@ ADMINISTRATOR</Labels>
     </argument>
     <argument id="589" parent="542" name="p_user_id">
       <Position>1</Position>
-      <StoredType>bigint|0s</StoredType>
     </argument>
     <argument id="590" parent="542" name="p_budget_limit">
       <Position>2</Position>
-      <StoredType>numeric|0s</StoredType>
     </argument>
     <column id="591" parent="545" name="id">
       <IdentityKind>by-default</IdentityKind>

@@ -23,6 +23,7 @@
                 <name qname="ai_schema" />
               </node>
             </node>
+            <node kind="database" qname="postgres" />
           </node>
         </introspection-scope>
       </schema-mapping>
