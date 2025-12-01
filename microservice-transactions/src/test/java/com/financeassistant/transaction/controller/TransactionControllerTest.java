@@ -3,6 +3,7 @@ package com.financeassistant.transaction.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeassistant.transaction.dto.CreateTransactionDTO;
 import com.financeassistant.transaction.dto.TransactionViewDTO;
+import com.financeassistant.transaction.dto.UpdateTransactionDTO;
 import com.financeassistant.transaction.entity.TransactionType;
 import com.financeassistant.transaction.exception.ResourceNotFoundException;
 import com.financeassistant.transaction.service.TransactionService;
@@ -19,6 +20,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -126,5 +128,101 @@ class TransactionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1L));
+    }
+
+    @Test
+    void updateTransaction_ValidInput_ReturnsOk() throws Exception {
+
+        Long id = 1L;
+        UpdateTransactionDTO inputDto = new UpdateTransactionDTO(
+            new BigDecimal("200.00"), "Updated Transaction", LocalDate.now(), 2L
+        );
+
+        TransactionViewDTO responseDto = new TransactionViewDTO(
+                id, new BigDecimal("200.00"), LocalDate.now(), "Updated Transaction", TransactionType.EXPENSE, "Updated Category"
+        );
+
+        when(transactionService.updateTransaction(eq(id), any(UpdateTransactionDTO.class)))
+                .thenReturn(responseDto);
+
+        mockMvc.perform(put("/api/transactions/{id}", id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(inputDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.amount").value(200.00))
+                .andExpect(jsonPath("$.description").value("Updated Transaction"));
+    }
+
+    @Test
+    void updateTransaction_NonExistingId_ReturnsNotFound() throws Exception {
+
+        Long id = 99L;
+        UpdateTransactionDTO inputDto = new UpdateTransactionDTO(
+            new BigDecimal("200.00"), "Updated Transaction", LocalDate.now(), 2L
+        );
+
+        when(transactionService.updateTransaction(eq(id), any(UpdateTransactionDTO.class)))
+                .thenThrow(new ResourceNotFoundException("Not Found"));
+
+        mockMvc.perform(put("/api/transactions/{id}", id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(inputDto)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Not Found"));
+    }
+
+    @Test
+    void deleteTransactionById_ExistingId_ReturnsNoContent() throws Exception {
+
+        Long id = 1L;
+
+        mockMvc.perform(delete("/api/transactions/{id}", id))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteTransactionById_NonExistingId_ReturnsNotFound() throws Exception {
+
+        Long id = 99L;
+
+        doThrow(new ResourceNotFoundException("Not Found"))
+                .when(transactionService).deleteTransaction(id);
+
+        mockMvc.perform(delete("/api/transactions/{id}", id))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Not Found"));
+    }
+
+    @Test
+    void filterTransactionsByType_ReturnsList() throws Exception {
+
+        TransactionViewDTO t1 = new TransactionViewDTO();
+        t1.setType(TransactionType.INCOME);
+
+        when(transactionService.getTransactionsByType(TransactionType.INCOME))
+                .thenReturn(List.of(t1));
+
+        mockMvc.perform(get("/api/transactions/filter")
+                    .param("type", "INCOME"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    void sortTransactions_ReturnsList() throws Exception {
+
+        TransactionViewDTO t1 = new TransactionViewDTO();
+        t1.setAmount(new BigDecimal("300.00"));
+        TransactionViewDTO t2 = new TransactionViewDTO();
+        t2.setAmount(new BigDecimal("100.00"));
+
+        when(transactionService.getSortedTransactions("amount", "asc"))
+                .thenReturn(List.of(t2, t1));
+
+        mockMvc.perform(get("/api/transactions/sort")
+                        .param("sortBy", "amount")
+                        .param("order", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
     }
 }
