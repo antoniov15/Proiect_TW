@@ -18,6 +18,9 @@ public class UserController {
 
     @GetMapping("/")
     public Mono<String> home(@AuthenticationPrincipal OAuth2User principal) {
+        if (principal == null) {
+            return Mono.just("Welcome! Please log in.");
+        }
         return Mono.just("Welcome " + principal.getAttribute("name"));
     }
 }
