@@ -23,20 +23,17 @@ public class GoogleIdTokenRelayFilter implements GlobalFilter, Ordered {
                 .filter(auth -> auth.getPrincipal() instanceof OidcUser)
                 .map(auth -> (OidcUser) auth.getPrincipal())
                 .map(oidcUser -> {
-                    // Cazul 1: User Logat -> Creăm un Exchange modificat (mutated)
                     String idToken = oidcUser.getIdToken().getTokenValue();
                     return withBearerToken(exchange, idToken);
                 })
-                // Cazul 2: User Nelogat -> Folosim Exchange-ul original
                 .defaultIfEmpty(exchange)
-                // Pasul Final: Executăm lanțul O SINGURĂ DATĂ cu exchange-ul ales
                 .flatMap(chain::filter);
     }
 
     private ServerWebExchange withBearerToken(ServerWebExchange exchange, String idToken) {
         ServerHttpRequestDecorator decoratedRequest = new ServerHttpRequestDecorator(exchange.getRequest()) {
             @Override
-            @NonNull // Rezolvă warning-ul din IntelliJ
+            @NonNull
             public HttpHeaders getHeaders() {
                 HttpHeaders headers = new HttpHeaders();
                 headers.putAll(super.getHeaders());
