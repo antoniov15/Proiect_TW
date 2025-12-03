@@ -30,7 +30,8 @@ public class SecurityConfig {
     private static final List<String> ADMIN_EMAILS = List.of(
             "laurentiu@student.unitbv.ro",
             "antonio@student.unitbv.ro",
-            "dan.ignat@student.unitbv.ro"
+            "dan.ignat@student.unitbv.ro",
+            "lau572004@gmail.com"
     );
 
     @Bean
