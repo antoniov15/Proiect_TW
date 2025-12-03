@@ -1,10 +1,18 @@
 package org.example.microserviceaccount.security;
 
+import org.example.microserviceaccount.repository.AccountRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.stereotype.Component;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Service;
 
+@Service("accountSecurity")
 public class AccountSecurityService {
+    @Autowired
+    private AccountRepository accountRepository;
+
+
     public boolean isOwnerOrAdmin(Authentication authentication, Long accountId) {
         if (authentication == null) {
             return false;
@@ -14,8 +22,19 @@ public class AccountSecurityService {
             return true;
         }
 
-        String username = authentication.getName();
+        String userEmail = null;
+        if(authentication.getPrincipal() instanceof Jwt) {
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            userEmail = jwt.getClaimAsString("email");
+        }
 
-        return username != null && username.equals(String.valueOf(accountId));
+        if(userEmail == null) {
+            return false;
+        }
+
+        String finalUserEmail = userEmail;
+        return accountRepository.findById(accountId)
+                .map(account -> account.getEmail().equals(finalUserEmail))
+                .orElse(false);
     }
 }
