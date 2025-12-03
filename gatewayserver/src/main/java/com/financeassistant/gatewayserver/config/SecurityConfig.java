@@ -31,7 +31,8 @@ public class SecurityConfig {
             "laurentiu@student.unitbv.ro",
             "antonio@student.unitbv.ro",
             "dan.ignat@student.unitbv.ro",
-            "lau572004@gmail.com"
+            "lau572004@gmail.com",
+            "antoniox2004.av@gmail.com"
     );
 
     @Bean
