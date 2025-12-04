@@ -45,7 +45,9 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                                .pathMatchers("/", "/index.html", "/login", "/oauth2/**", "/actuator/**").permitAll()
+                                .pathMatchers("/", "/index.html", "/login", "/oauth2/**").permitAll()
+                                .pathMatchers("/actuator/health").permitAll()
+                                .pathMatchers("/microservice-*/actuator/health").permitAll()
                                 .anyExchange().authenticated()
                 )
                 .oauth2Login(withDefaults())
