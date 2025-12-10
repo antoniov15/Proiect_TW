@@ -1,4 +1,8 @@
 spring:
+  main:
+    web-application-type: reactive
+  profiles:
+    active: test
   application:
     name: gatewayserver
   security:
@@ -12,10 +16,25 @@ spring:
               - openid
               - profile
               - email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+              - https://www.googleapis.com/auth/cloud-platform
+            redirect-uri: "http://localhost:8072/login/oauth2/code/google"
         provider:
           google:
-            issuer-uri: https://accounts.google.com
+            #get the authorization code
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            #exchange the authorization code for an access token - client id and client secret are sent here
+            token-uri: https://oauth2.googleapis.com/token
+            #retrieve user details and populate the OAuth2User object
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            #username attribute used to uniquely identify the user
+            user-name-attribute: sub
+
+  zipkin:
+    base-url: http://localhost:9411 #http://zipkin:9411
+  sleuth:
+    sampler:
+      probability: 1.0
+
   cloud:
     gateway:
       discovery:
