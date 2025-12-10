@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableWebFluxSecurity
 //@Profile("test")
+@Profile("!dev")
 public class SecurityConfig {
 
     //TODO: set your GCP project ID
