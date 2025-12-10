@@ -6,6 +6,9 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -18,22 +21,33 @@ public class TraceIdFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
-        String traceId = getTraceId(requestHeaders);
+        HttpHeaders originalHeaders = exchange.getRequest().getHeaders();
+        String traceId = getTraceId(originalHeaders);
 
         logger.info("Primire cerere cu Trace ID: {}", traceId);
 
-        ServerWebExchange exchangeWithTraceId = exchange.mutate()
-                .request(r -> r.header(TRACE_ID_HEADER, traceId))
+        HttpHeaders mutableHeaders = new HttpHeaders();
+        mutableHeaders.putAll(originalHeaders);
+        mutableHeaders.set(TRACE_ID_HEADER, traceId);
+
+        ServerHttpRequest decoratedRequest = new ServerHttpRequestDecorator(exchange.getRequest()) {
+            @Override
+            public HttpHeaders getHeaders() {
+                return mutableHeaders;
+            }
+        };
+
+        ServerWebExchange mutatedExchange = exchange.mutate()
+                .request(decoratedRequest)
                 .build();
 
-        exchangeWithTraceId.getResponse().getHeaders().add(TRACE_ID_HEADER, traceId);
+        mutatedExchange.getResponse().getHeaders().set(TRACE_ID_HEADER, traceId);
 
-        return chain.filter(exchangeWithTraceId);
+        return chain.filter(mutatedExchange);
     }
 
     private String getTraceId(HttpHeaders headers) {
-        if(headers.containsKey(TRACE_ID_HEADER)){
+        if (headers.containsKey(TRACE_ID_HEADER)) {
             return headers.getFirst(TRACE_ID_HEADER);
         }
         return UUID.randomUUID().toString();

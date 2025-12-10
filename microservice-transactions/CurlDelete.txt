@@ -1,0 +1,1 @@
+curl.exe -v -X DELETE http://localhost:8072/microservice-transactions/api/transactions/7 -H "Authorization: Bearer <--TOKEN-->"
