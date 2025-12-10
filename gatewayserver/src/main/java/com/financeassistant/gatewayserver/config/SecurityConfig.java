@@ -39,14 +39,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
-@Profile("test")
+@EnableWebFluxSecurity
+//@Profile("test")
 public class SecurityConfig {
 
     //TODO: set your GCP project ID
-    private final String idProject = "";
+    private final String idProject = "finance-assistant-gateway";
 
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
@@ -79,7 +78,7 @@ public class SecurityConfig {
             webFilterExchange
                     .getExchange()
                     .getResponse()
-                    .getHeaders().set("Location", "http://localhost:8072/university");
+                    .getHeaders().set("Location", "http://localhost:8072/");
 
             return webFilterExchange.getExchange().getResponse().setComplete();
         };
