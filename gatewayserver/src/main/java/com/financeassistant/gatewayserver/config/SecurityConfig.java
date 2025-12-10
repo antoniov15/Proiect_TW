@@ -31,7 +31,7 @@ public class SecurityConfig {
             "laurentiu@student.unitbv.ro",
             "antonio@student.unitbv.ro",
             "dan.ignat@student.unitbv.ro",
-            "lau572004@gmail.com",
+//            "lau572004@gmail.com",
             "antoniox2004.av@gmail.com"
     );
 
@@ -45,8 +45,10 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                                .pathMatchers("/", "/index.html", "/login", "/oauth2/**", "/actuator/**").permitAll()
-                                .anyExchange().authenticated()
+                        .pathMatchers("/", "/index.html", "/login", "/oauth2/**", "/actuator/**").permitAll()
+                        .pathMatchers(HttpMethod.DELETE, "/microservice-transactions/**").hasRole("ADMIN")
+                        .pathMatchers("/microservice-transactions/**").authenticated()
+                        .anyExchange().authenticated()
                 )
                 .oauth2Login(withDefaults())
                 .logout(logout -> logout
