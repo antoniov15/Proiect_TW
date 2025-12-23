@@ -1,5 +1,6 @@
 package com.financeassistant.transaction.service;
 
+import com.financeassistant.transaction.domain.TransactionDomainService;
 import com.financeassistant.transaction.dto.CreateTransactionDTO;
 import com.financeassistant.transaction.dto.TransactionViewDTO;
 import com.financeassistant.transaction.dto.UpdateTransactionDTO;
@@ -29,6 +30,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
     private final TransactionMapper transactionMapper;
+    private final TransactionDomainService transactionDomainService;
 
     @Autowired
     public TransactionService(TransactionRepository transactionRepository, CategoryRepository categoryRepository, TransactionMapper transactionMapper) {
@@ -36,28 +38,28 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
         this.categoryRepository = categoryRepository;
         this.transactionMapper = transactionMapper;
+        this.transactionDomainService = new TransactionDomainService();
     }
 
     @Transactional
-    public TransactionViewDTO createTransaction(CreateTransactionDTO dto) {
+    public TransactionViewDTO createTransaction(CreateTransactionDTO createDto) {
 
-        log.debug("Creating transaction for userId: {}", dto.getUserId());
+        log.debug("Creating transaction for userId: {}", createDto.getUserId());
 
-        Category category = categoryRepository.findById(dto.getCategoryId())
-            .orElseThrow(() -> new ResourceNotFoundException("Invalid category ID"));
+        Category category = categoryRepository.findById(createDto.getCategoryId())
+            .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + createDto.getCategoryId()));
 
-        Transaction newTransaction = new Transaction();
-        newTransaction.setUserId(dto.getUserId());
-        newTransaction.setAmount(dto.getAmount());
-        newTransaction.setDate(dto.getDate());
-        newTransaction.setDescription(dto.getDescription());
-        newTransaction.setCategory(category);
-        newTransaction.setType(dto.getType());
+        transactionDomainService.validateTransactionCreation(
+                createDto.getAmount(),
+                createDto.getType(),
+                category
+        );
 
-        Transaction savedTransaction = transactionRepository.save(newTransaction);
+        Transaction transaction = transactionMapper.toEntity(createDto);
+        transaction.setCategory(category);
 
+        Transaction savedTransaction = transactionRepository.save(transaction);
         log.info("Transaction created with id: {}", savedTransaction.getId());
-
         return transactionMapper.toViewDTO(savedTransaction);
     }
 
@@ -154,31 +156,16 @@ public class TransactionService {
     @Transactional(readOnly = true)
     public BigDecimal getMonthlyExpense(Long userId, int month, int year) {
 
-        if (userId == null) {
-            throw new IllegalArgumentException("User ID cannot be null");
-        }
+        transactionDomainService.validateMonthlyExpense(year);
 
-        if (month < 1 || month > 12) {
-            throw new IllegalArgumentException("Month must be between 1 and 12");
-        }
-
-        int currentYear = LocalDate.now().getYear();
-        if (year < 2000 || year > currentYear) {
-            throw new IllegalArgumentException("Year must be between 2000 and " + currentYear);
-        }
         return transactionRepository.calculateMonthlyExpense(userId, month, year);
     }
 
     @Transactional(readOnly = true)
     public String checkBudgetStatus(Long userId, BigDecimal budgetLimit) {
 
-        if (userId == null) {
-            throw new IllegalArgumentException("User ID cannot be null");
-        }
+        transactionDomainService.validateBudgetCheckRequest(userId, budgetLimit);
 
-        if (budgetLimit.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Budget limit must be positive");
-        }
         return transactionRepository.checkBudgetStatus(userId, budgetLimit);
     }
 
@@ -186,13 +173,8 @@ public class TransactionService {
     public Integer archiveOldTransactions(LocalDate cutoffDate) {
 
         log.info("Request to archive transactions older than: {}", cutoffDate);
-        if (cutoffDate == null) {
-            throw new IllegalArgumentException("Cutoff date cannot be null");
-        }
 
-        if (cutoffDate.isAfter(LocalDate.now().minusMonths(1))) {
-            throw new IllegalArgumentException("Cutoff date must be at least one month in the past");
-        }
+        transactionDomainService.validateArchiveRequest(cutoffDate);
 
         Integer deletedCount = transactionRepository.archiveOldTransactions(cutoffDate);
         log.info("Archived {} transactions older than {}", deletedCount, cutoffDate);

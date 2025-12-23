@@ -1,5 +1,6 @@
 package com.financeassistant.transaction.mapper;
 
+import com.financeassistant.transaction.dto.CreateTransactionDTO;
 import com.financeassistant.transaction.dto.TransactionViewDTO;
 import com.financeassistant.transaction.entity.Transaction;
 import org.springframework.stereotype.Component;
@@ -31,5 +32,15 @@ public class TransactionMapper {
             DTOs.add(toViewDTO(transaction));
         }
         return DTOs;
+    }
+
+    public Transaction toEntity(CreateTransactionDTO createDto) {
+        Transaction transaction = new Transaction();
+        transaction.setUserId(createDto.getUserId());
+        transaction.setAmount(createDto.getAmount());
+        transaction.setDate(createDto.getDate());
+        transaction.setDescription(createDto.getDescription());
+        transaction.setType(createDto.getType());
+        return transaction;
     }
 }
