@@ -3,25 +3,27 @@ package org.example.microserviceaccount;
 import jakarta.persistence.EntityManager;
 import org.example.microserviceaccount.entity.Account;
 import org.example.microserviceaccount.repository.AccountRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-// Asigură-te că testele rulează pe profilul care se conectează la Postgres, nu H2
-// Dacă ai un application-test.properties setat pe H2, comentează linia de mai jos sau configurează-l pe Postgres
-// @ActiveProfiles("test")
+// @ActiveProfiles("test") // Asigură-te că profilul activ este cel corect (postgres, nu H2, conform comentariilor tale)
 @Transactional
-public class StoredProcedureTest {
+class StoredProcedureTest {
+
+    @MockBean
+    private JwtDecoder jwtDecoder;
+
     @Autowired
     private AccountRepository accountRepository;
 
@@ -30,8 +32,7 @@ public class StoredProcedureTest {
 
     @BeforeEach
     public void setup() {
-        // Curățăm baza de date (opțional, @Transactional se ocupă de obicei de asta)
-        // accountRepository.deleteAll();
+        // Curățare opțională
     }
 
     @Test
@@ -45,15 +46,12 @@ public class StoredProcedureTest {
 
         accountRepository.flush();
 
-        // user luat
         String resultUserTaken = accountRepository.checkAccountAvailability("new@mail.com", "testUserUnique");
         assertEquals("USERNAME_TAKEN", resultUserTaken, "Procedura ar trebui să detecteze username-ul existent");
 
-        // mail luat
         String resultEmailTaken = accountRepository.checkAccountAvailability("test@unique.com", "newUserUnique");
         assertEquals("EMAIL_TAKEN", resultEmailTaken, "Procedura ar trebui să detecteze email-ul existent");
 
-        // totul liber
         String resultAvailable = accountRepository.checkAccountAvailability("fresh@mail.com", "freshUser");
         assertEquals("AVAILABLE", resultAvailable, "Procedura ar trebui să returneze AVAILABLE");
     }
@@ -100,7 +98,6 @@ public class StoredProcedureTest {
 
     @Test
     public void testAnonymizeUserNotFound() {
-        // Apelăm procedura pentru un ID inexistent
         String result = accountRepository.anonymizeUserData(999999L);
         assertEquals("USER_NOT_FOUND", result);
     }

@@ -46,7 +46,7 @@ public class AccountServiceTest {
         accountEntity.setId(1L);
         accountEntity.setEmail("test@example.com");
         accountEntity.setUserName("testuser");
-        accountEntity.setPassword("password123"); // FIX: Am setat parola pentru a nu fi null la encode
+        accountEntity.setPassword("password123");
         accountEntity.setCreatedAt(LocalDate.now());
 
         AccountResponseDTO responseDTO = new AccountResponseDTO();
@@ -88,7 +88,6 @@ public class AccountServiceTest {
             accountService.createAccount(accountCreateDTO);
         });
 
-        // FIX: Am actualizat mesajul așteptat conform logicii din Service ("already in use")
         assertTrue(exception.getMessage().contains("already in use"));
 
         verify(accountRepository, never()).save(any(Account.class));
@@ -104,7 +103,6 @@ public class AccountServiceTest {
         AccountResponseDTO expectedResponse = new AccountResponseDTO();
         expectedResponse.setId(accountId);
 
-        // FIX: Am adăugat comportamentul mock-urilor care lipsea
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
         when(accountMapper.accountToAccountResponseDTO(account)).thenReturn(expectedResponse);
 

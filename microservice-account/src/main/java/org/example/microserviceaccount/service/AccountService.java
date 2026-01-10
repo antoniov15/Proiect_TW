@@ -1,10 +1,10 @@
 package org.example.microserviceaccount.service;
 
 import jakarta.validation.Valid;
+import org.example.microserviceaccount.domain.AccountDomainService;
 import org.example.microserviceaccount.dto.AccountCreateDTO;
 import org.example.microserviceaccount.dto.AccountResponseDTO;
 import org.example.microserviceaccount.dto.LoginRequestDTO;
-import org.example.microserviceaccount.dto.ResetPasswordDTO;
 import org.example.microserviceaccount.entity.Account;
 import org.example.microserviceaccount.exception.ResourceNotFoundException;
 import org.example.microserviceaccount.mapper.AccountMapper;
@@ -13,26 +13,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final PasswordEncoder passwordEncoder;
+    private final AccountDomainService accountDomainService;
 
     @Autowired
-    public AccountService(AccountRepository accountRepository, AccountMapper accountMapper, PasswordEncoder passwordEncoder) {
+    public AccountService(
+            AccountRepository accountRepository,
+            AccountMapper accountMapper,
+            PasswordEncoder passwordEncoder,
+        AccountDomainService accountDomainService) {
         this.accountRepository = accountRepository;
         this.accountMapper = accountMapper;
         this.passwordEncoder = passwordEncoder;
+        this.accountDomainService = accountDomainService;
     }
 
     /// CRUD
     // Create POST
+    @Transactional
     public AccountResponseDTO createAccount(AccountCreateDTO createDTO) {
         // verif mail si username
         accountRepository.findByEmail(createDTO.getEmail()).ifPresent(account -> {
@@ -52,6 +59,7 @@ public class AccountService {
     }
 
     // Read (Get by ID)
+    @Transactional(readOnly = true)
     public AccountResponseDTO getAccountById(Long id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id " + id + " not found"));
@@ -59,12 +67,14 @@ public class AccountService {
     }
 
     // Read (Get all)
+    @Transactional(readOnly = true)
     public List<AccountResponseDTO> getAllAccounts() {
         List<Account> accounts = accountRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
         return accountMapper.accountsToAccountResponseDTOs(accounts);
     }
 
     // Update PUT
+    @Transactional
     public AccountResponseDTO updateAccount(Long id, AccountCreateDTO updateDTO) {
         Account existingAccount = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id " + id + " not found"));
@@ -90,6 +100,7 @@ public class AccountService {
     }
 
     // DELETE
+    @Transactional
     public void deleteAccount(Long id) {
         Account existingAccount = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id " + id + " not found"));
@@ -97,6 +108,7 @@ public class AccountService {
     }
 
     // GET by email
+    @Transactional(readOnly = true)
     public AccountResponseDTO getAccountByEmail(String email) {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Contul cu email-ul " + email + " nu a fost găsit."));
@@ -105,8 +117,12 @@ public class AccountService {
     }
 
     // GET ordered by createdAt
+    @Transactional(readOnly = true)
     public List<AccountResponseDTO> getAccountsSortedByCreationDate(String direction) {
-        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
         Sort sort = Sort.by(sortDirection, "createdAt");
 
         List<Account> accounts = accountRepository.findAll(sort);
@@ -114,12 +130,14 @@ public class AccountService {
     }
 
     // GET by userName
+    @Transactional(readOnly = true)
     public List<AccountResponseDTO> findAccountsByUsernameContaining(String usernameFragment) {
         List<Account> accounts = accountRepository.findByUserNameContainingIgnoreCase(usernameFragment);
         return accountMapper.accountsToAccountResponseDTOs(accounts);
     }
 
     // authentication method
+    @Transactional(readOnly = true)
     public AccountResponseDTO login(LoginRequestDTO loginDTO) {
         Account account = accountRepository.findByEmail(loginDTO.getLoginIdentifier())
                 .or(() -> accountRepository.findByUserName(loginDTO.getLoginIdentifier()))
@@ -132,6 +150,8 @@ public class AccountService {
         }
     }
 
+    //reset password
+    @Transactional
     public AccountResponseDTO resetPassword(String email, String newPassword) {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with email " + email + " not found"));
@@ -140,5 +160,31 @@ public class AccountService {
 
         Account updatedAccount = accountRepository.save(account);
         return accountMapper.accountToAccountResponseDTO(updatedAccount);
+    }
+
+    // Stored Procedures with domain validation
+    @Transactional(readOnly = true)
+    public Integer countNewUsers(LocalDate startDate, LocalDate endDate) {
+        // Domain validation for date range
+        accountDomainService.validateDateRange(startDate, endDate);
+
+        return accountRepository.countNewUsers(startDate, endDate);
+    }
+
+    @Transactional
+    public String anonymizeUserData(Long userId) {
+        // Domain validation for anonymization
+        accountDomainService.validateAnonymizationRequest(userId);
+
+        return accountRepository.anonymizeUserData(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public String checkAccountAvailability(String email, String username) {
+        // Domain validation
+        accountDomainService.validateEmail(email);
+        accountDomainService.validateUsername(username);
+
+        return accountRepository.checkAccountAvailability(email, username);
     }
 }
