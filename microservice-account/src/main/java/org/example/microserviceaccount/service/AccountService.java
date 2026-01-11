@@ -316,6 +316,7 @@ public class AccountService {
 
         // procesare
         double totalBalance = transactions.stream()
+                .filter(t -> t.getAmount() != null && t.getType() != null) // Siguranță împotriva null
                 .mapToDouble(t -> {
                     if ("INCOME".equalsIgnoreCase(t.getType())) {
                         return t.getAmount().doubleValue();

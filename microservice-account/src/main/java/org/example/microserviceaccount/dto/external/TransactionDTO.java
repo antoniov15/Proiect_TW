@@ -2,15 +2,14 @@ package org.example.microserviceaccount.dto.external;
 
 import lombok.Data;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 public class TransactionDTO {
     private Long id;
-    private Long userId;
     private BigDecimal amount;
-    private String type; // INCOME/EXPENSE
-    private String category;
+    private String type;
+    private String categoryName;
     private String description;
-    private LocalDateTime date;
+    private LocalDate date;
 }
