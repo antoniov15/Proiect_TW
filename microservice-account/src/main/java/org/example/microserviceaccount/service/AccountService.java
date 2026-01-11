@@ -14,6 +14,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.example.microserviceaccount.client.TransactionClient;
+import org.example.microserviceaccount.dto.AccountSummaryDTO;
+import org.example.microserviceaccount.dto.external.TransactionDTO;
+import java.math.BigDecimal;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,17 +28,20 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final PasswordEncoder passwordEncoder;
     private final AccountDomainService accountDomainService;
+    private final TransactionClient transactionClient;
 
     @Autowired
     public AccountService(
             AccountRepository accountRepository,
             AccountMapper accountMapper,
             PasswordEncoder passwordEncoder,
-            AccountDomainService accountDomainService) {
+            AccountDomainService accountDomainService,
+            TransactionClient transactionClient) {
         this.accountRepository = accountRepository;
         this.accountMapper = accountMapper;
         this.passwordEncoder = passwordEncoder;
         this.accountDomainService = accountDomainService;
+        this.transactionClient = transactionClient;
     }
 
     /// CRUD
@@ -186,5 +193,37 @@ public class AccountService {
         accountDomainService.validateUsername(username);
 
         return accountRepository.checkAccountAvailability(email, username);
+    }
+
+    // viza 3, GET
+    @Transactional(readOnly = true)
+    public AccountSummaryDTO getAccountSummary(Long accountId) {
+        // account
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account with id " + accountId + " not found"));
+
+        // apelare Transactions
+        // ID-ul contului din acest serviciu corespunde userId-ului din Transactions
+        List<TransactionDTO> transactions = transactionClient.getTransactionsByUserId(accountId);
+
+        // procesare
+        double totalBalance = transactions.stream()
+                .mapToDouble(t -> {
+                    if ("INCOME".equalsIgnoreCase(t.getType())) {
+                        return t.getAmount().doubleValue();
+                    } else {
+                        return -t.getAmount().doubleValue();
+                    }
+                })
+                .sum();
+
+        AccountSummaryDTO summary = new AccountSummaryDTO();
+        summary.setAccountId(account.getId());
+        summary.setUserName(account.getUserName());
+        summary.setEmail(account.getEmail());
+        summary.setRecentTransactions(transactions);
+        summary.setTotalBalanceCalculated(totalBalance);
+
+        return summary;
     }
 }

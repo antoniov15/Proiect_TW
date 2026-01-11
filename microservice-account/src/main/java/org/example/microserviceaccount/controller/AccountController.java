@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.example.microserviceaccount.dto.AccountSummaryDTO;
 
 import java.util.List;
 
@@ -99,5 +100,13 @@ public class AccountController {
             @RequestParam String username) {
         List<AccountResponseDTO> accounts = accountService.findAccountsByUsernameContaining(username);
         return ResponseEntity.ok(accounts);
+    }
+
+    // GET viza3
+    @GetMapping("/{id}/summary")
+    @PreAuthorize("@accountSecurity.isOwnerOrAdmin(authentication, #id)")
+    public ResponseEntity<AccountSummaryDTO> getAccountSummary(@PathVariable Long id) {
+        AccountSummaryDTO summary = accountService.getAccountSummary(id);
+        return ResponseEntity.ok(summary);
     }
 }
