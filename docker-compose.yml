@@ -6,9 +6,11 @@ services:
       - "5432:5432"
     environment:
       - POSTGRES_DB=finance_app_db
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     image: postgres:15
+    volumes:
+      - ./db_setup.sql:/docker-entrypoint-initdb.d/db_setup.sql
     networks:
       - finance-network
 
@@ -19,9 +21,11 @@ services:
       - "5433:5432"
     environment:
       - POSTGRES_DB=finance_app_db
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     image: postgres:15
+    volumes:
+      - ./db_setup.sql:/docker-entrypoint-initdb.d/db_setup.sql
     networks:
       - finance-network
 
@@ -64,7 +68,8 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://accountsdb:5432/finance_app_db?currentSchema=account_schema
       - SPRING_PROFILES_ACTIVE=prod
-      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans # NOU
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
     depends_on:
       accountsdb:
         condition: service_started
@@ -85,8 +90,11 @@ services:
       dockerfile: Dockerfile
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://transactionsdb:5432/finance_app_db?currentSchema=transaction_schema
+      - TRANSACTION_DB_USERNAME=postgres
+      - TRANSACTION_DB_PASSWORD=postgres
       - SPRING_PROFILES_ACTIVE=prod
-      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans # NOU
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
     depends_on:
       transactionsdb:
         condition: service_started
@@ -107,7 +115,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans # NOU
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
     depends_on:
       eurekaserver:
         condition: service_healthy
@@ -128,7 +137,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - SPRING_PROFILES_ACTIVE=default
-      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans # NOU
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
     depends_on:
       microservice-account:
         condition: service_started
@@ -154,6 +164,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=no-security # Profilul pe care îl vom crea mai târziu
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
     depends_on:
       microservice-account:
         condition: service_started
