@@ -5,79 +5,61 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.microservice_ai.domain.model.ChatAggregate;
+import com.example.microservice_ai.domain.model.MessageModel;
+import com.example.microservice_ai.domain.service.ChatDomainService;
 import com.example.microservice_ai.dto.ChatCreateDTO;
 import com.example.microservice_ai.dto.ChatDTO;
 import com.example.microservice_ai.dto.MessageCreateDTO;
 import com.example.microservice_ai.dto.MessageDTO;
-import com.example.microservice_ai.entity.Chat;
-import com.example.microservice_ai.entity.Message;
-import com.example.microservice_ai.exception.AccountNotFoundException;
-import com.example.microservice_ai.mapper.ChatMapper;
-import com.example.microservice_ai.mapper.MessageMapper;
-import com.example.microservice_ai.repository.ChatRepository;
-import com.example.microservice_ai.repository.MessageRepository;
+import com.example.microservice_ai.enums.Role;
 
 @Service
-public class ChatServiceImpl implements IChatService{
+public class ChatServiceImpl implements IChatService {
     private static final Logger logger = LoggerFactory.getLogger(ChatServiceImpl.class);
 
-    @Autowired
-    private ChatRepository chatRepository;
+    private final ChatDomainService chatDomainService;
 
-    @Autowired
-    private MessageRepository messageRepository;
+    public ChatServiceImpl(ChatDomainService chatDomainService) {
+        this.chatDomainService = chatDomainService;
+    }
 
     @Override
     @Transactional
     public ChatDTO createChat(ChatCreateDTO chatCreateDTO) {
         logger.debug("Creating new chat with title: {}", chatCreateDTO.getTitle());
-        Chat chat = ChatMapper.toEntity(chatCreateDTO);
-        final Chat savedChat = chatRepository.save(chat);
-        logger.info("Chat saved with id: {}", savedChat.getId());
+        ChatAggregate chat = chatDomainService.createChat(chatCreateDTO.getTitle());
+        logger.info("Chat saved with id: {}", chat.getId());
 
-        if (chatCreateDTO.getMessages() != null) {
-            List<Message> messages = chatCreateDTO.getMessages().stream()
-                    .map(m -> MessageMapper.toEntity(m, savedChat))
-                    .map(messageRepository::save)
-                    .collect(Collectors.toList());
-            
-            List<Message> persisted = messageRepository.findByChatIdOrderByCreatedAtAsc(savedChat.getId());
-            
-            return ChatMapper.toDTO(savedChat, persisted.stream().map(MessageMapper::toDTO).collect(Collectors.toList()));
+        if (chatCreateDTO.getMessages() != null && !chatCreateDTO.getMessages().isEmpty()) {
+            for (MessageCreateDTO msgDto : chatCreateDTO.getMessages()) {
+                MessageModel msg = toMessageModel(msgDto);
+                chatDomainService.addMessageToChat(chat.getId(), msg);
+            }
+            chat = chatDomainService.getChatById(chat.getId());
         }
 
-        return ChatMapper.toDTO(savedChat, List.of());
+        return toChatDTO(chat);
     }
 
     @Override
     public ChatDTO getChat(Long chatId) {
         logger.debug("Fetching chat with id: {}", chatId);
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> {
-                    logger.warn("Chat not found with id: {}", chatId);
-                    return new AccountNotFoundException("Chat not found: " + chatId);
-                });
-
-        List<Message> messages = messageRepository.findByChatIdOrderByCreatedAtAsc(chatId);
-
-        return ChatMapper.toDTO(chat, messages.stream().map(MessageMapper::toDTO).collect(Collectors.toList()));
+        ChatAggregate chat = chatDomainService.getChatById(chatId);
+        return toChatDTO(chat);
     }
 
     @Override
     public List<ChatDTO> listChats() {
         logger.debug("Listing all chats");
-        List<Chat> chats = chatRepository.findAll();
+        List<ChatAggregate> chats = chatDomainService.getAllChats();
         logger.info("Found {} chats", chats.size());
-
         return chats.stream().map(c -> {
-            List<Message> messages = messageRepository.findByChatIdOrderByCreatedAtAsc(c.getId());
-
-            return ChatMapper.toDTO(c, messages.stream().map(MessageMapper::toDTO).collect(Collectors.toList()));
-
+            ChatAggregate fullChat = chatDomainService.getChatById(c.getId());
+            return toChatDTO(fullChat);
         }).collect(Collectors.toList());
     }
 
@@ -85,35 +67,16 @@ public class ChatServiceImpl implements IChatService{
     @Transactional
     public ChatDTO updateChat(Long chatId, ChatCreateDTO chatCreateDTO) {
         logger.debug("Updating chat with id: {}", chatId);
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> {
-                    logger.warn("Chat not found for update with id: {}", chatId);
-                    return new AccountNotFoundException("Chat not found: " + chatId);
-                });
-
-        if (chatCreateDTO.getTitle() != null) 
-            chat.setTitle(chatCreateDTO.getTitle());
-
-        chat = chatRepository.save(chat);
+        ChatAggregate chat = chatDomainService.updateChat(chatId, chatCreateDTO.getTitle());
         logger.info("Chat updated successfully: {}", chatId);
-
-        List<Message> messages = messageRepository.findByChatIdOrderByCreatedAtAsc(chat.getId());
-
-        return ChatMapper.toDTO(chat, messages.stream().map(MessageMapper::toDTO).collect(Collectors.toList()));
+        return toChatDTO(chatDomainService.getChatById(chatId));
     }
 
     @Override
     @Transactional
     public void deleteChat(Long chatId) {
         logger.debug("Deleting chat with id: {}", chatId);
-        List<Message> messages = messageRepository.findByChatIdOrderByCreatedAtAsc(chatId);
-
-        if (!messages.isEmpty()) {
-            logger.debug("Deleting {} messages for chat: {}", messages.size(), chatId);
-            messageRepository.deleteAll(messages);
-        }
-
-        chatRepository.deleteById(chatId);
+        chatDomainService.deleteChat(chatId);
         logger.info("Chat deleted successfully: {}", chatId);
     }
 
@@ -121,32 +84,45 @@ public class ChatServiceImpl implements IChatService{
     @Transactional
     public MessageDTO addMessage(Long chatId, MessageCreateDTO messageCreateDTO) {
         logger.debug("Adding message to chat: {}", chatId);
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> {
-                    logger.warn("Chat not found for adding message with id: {}", chatId);
-                    return new AccountNotFoundException("Chat not found: " + chatId);
-                });
-
-        Message message = MessageMapper.toEntity(messageCreateDTO, chat);
-
-        message = messageRepository.save(message);
-        logger.info("Message added to chat {} with id: {}", chatId, message.getId());
-
-        return MessageMapper.toDTO(message);
+        MessageModel message = toMessageModel(messageCreateDTO);
+        MessageModel saved = chatDomainService.addMessageToChat(chatId, message);
+        logger.info("Message added to chat {} with id: {}", chatId, saved.getId());
+        return toMessageDTO(saved);
     }
 
     @Override
     public List<MessageDTO> getMessagesForChat(Long chatId) {
         logger.debug("Fetching messages for chat: {}", chatId);
-        if (!chatRepository.existsById(chatId)) {
-            logger.warn("Chat not found for fetching messages with id: {}", chatId);
-            throw new AccountNotFoundException("Chat not found: " + chatId);
-        }
-
-        List<Message> messages = messageRepository.findByChatIdOrderByCreatedAtAsc(chatId);
+        List<MessageModel> messages = chatDomainService.getChatMessages(chatId);
         logger.debug("Found {} messages for chat: {}", messages.size(), chatId);
-
-        return messages.stream().map(MessageMapper::toDTO).collect(Collectors.toList());
+        return messages.stream().map(this::toMessageDTO).collect(Collectors.toList());
     }
 
+    private ChatDTO toChatDTO(ChatAggregate chat) {
+        ChatDTO dto = new ChatDTO();
+        dto.setId(chat.getId());
+        dto.setTitle(chat.getTitle());
+        dto.setCreatedAt(chat.getCreatedAt());
+        dto.setMessages(chat.getMessages().stream().map(this::toMessageDTO).collect(Collectors.toList()));
+        return dto;
+    }
+
+    private MessageDTO toMessageDTO(MessageModel msg) {
+        MessageDTO dto = new MessageDTO();
+        dto.setId(msg.getId());
+        dto.setRole(msg.getRole() != null ? msg.getRole().name() : null);
+        dto.setContent(msg.getContent());
+        dto.setTimestamp(msg.getCreatedAt());
+        return dto;
+    }
+
+    private MessageModel toMessageModel(MessageCreateDTO dto) {
+        Role role = Role.USER;
+        try {
+            role = Role.valueOf(dto.getRole().toUpperCase());
+        } catch (Exception e) {
+            logger.warn("Invalid role '{}', defaulting to USER", dto.getRole());
+        }
+        return new MessageModel(role, dto.getContent(), null);
+    }
 }
