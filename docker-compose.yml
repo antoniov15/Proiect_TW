@@ -5,9 +5,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=finance_app_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     image: postgres:15
     volumes:
       - ./db_setup.sql:/docker-entrypoint-initdb.d/db_setup.sql
@@ -20,9 +20,23 @@ services:
     ports:
       - "5433:5432"
     environment:
-      - POSTGRES_DB=finance_app_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    image: postgres:15
+    volumes:
+      - ./db_setup.sql:/docker-entrypoint-initdb.d/db_setup.sql
+    networks:
+      - finance-network
+
+  aidb:
+    container_name: aidb
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     image: postgres:15
     volumes:
       - ./db_setup.sql:/docker-entrypoint-initdb.d/db_setup.sql
@@ -67,6 +81,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://accountsdb:5432/finance_app_db?currentSchema=account_schema
+      - TRANSACTION_DB_USERNAME=${POSTGRES_USER}
+      - TRANSACTION_DB_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_PROFILES_ACTIVE=prod
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
@@ -90,8 +106,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://transactionsdb:5432/finance_app_db?currentSchema=transaction_schema
-      - TRANSACTION_DB_USERNAME=postgres
-      - TRANSACTION_DB_PASSWORD=postgres
+      - TRANSACTION_DB_USERNAME=${POSTGRES_USER}
+      - TRANSACTION_DB_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_PROFILES_ACTIVE=prod
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
@@ -114,9 +130,15 @@ services:
       context: ./microservice-ai
       dockerfile: Dockerfile
     environment:
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=https://accounts.google.com
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://aidb:5432/finance_app_db?currentSchema=ai_schema
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_PROFILES_ACTIVE=prod
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
+      - AI_API_KEY=${AI_API_KEY}
+      - AI_API_URL=${AI_API_URL}
     depends_on:
       eurekaserver:
         condition: service_healthy

@@ -3,7 +3,7 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.54">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <IntrospectionStateNumber>919</IntrospectionStateNumber>
+      <IntrospectionStateNumber>920</IntrospectionStateNumber>
       <ServerVersion>18.0</ServerVersion>
       <StartupTime>1765639564</StartupTime>
       <TimeZones>true ACDT
@@ -800,7 +800,7 @@ false Zulu
 14860||10|C|G
 14860||-9223372036854775808|U|G
 14860||10|U|G</Grants>
-      <IntrospectionStateNumber>919</IntrospectionStateNumber>
+      <IntrospectionStateNumber>920</IntrospectionStateNumber>
       <ObjectId>16441</ObjectId>
       <OwnerName>postgres</OwnerName>
     </database>
@@ -4321,22 +4321,22 @@ false Zulu
     </language>
     <schema id="270" parent="2" name="account_schema">
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
-      <LastIntrospectionL1Xid>919</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>919</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>919</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>920</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>920</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>920</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2026-01-11.14:08:02</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2026-01-11.15:24:46</LastIntrospectionLocalTimestamp>
       <ObjectId>16445</ObjectId>
       <StateNumber>794</StateNumber>
       <OwnerName>postgres</OwnerName>
     </schema>
     <schema id="271" parent="2" name="ai_schema">
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
-      <LastIntrospectionL1Xid>919</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>919</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>919</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>920</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>920</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>920</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2026-01-11.14:08:02</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2026-01-11.15:24:46</LastIntrospectionLocalTimestamp>
       <ObjectId>16523</ObjectId>
       <StateNumber>884</StateNumber>
       <OwnerName>postgres</OwnerName>
@@ -4356,22 +4356,22 @@ false Zulu
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <LastIntrospectionL1Xid>919</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>919</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>919</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>920</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>920</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>920</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2026-01-11.14:08:02</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2026-01-11.15:24:46</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>546</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
     </schema>
     <schema id="275" parent="2" name="transaction_schema">
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
-      <LastIntrospectionL1Xid>919</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>919</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>919</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>920</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>920</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>920</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2026-01-11.14:08:02</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2026-01-11.15:24:46</LastIntrospectionLocalTimestamp>
       <ObjectId>16446</ObjectId>
       <StateNumber>795</StateNumber>
       <OwnerName>postgres</OwnerName>
