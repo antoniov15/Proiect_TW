@@ -1,7 +1,11 @@
 package org.example.microserviceaccount.service;
 
+import org.example.microserviceaccount.client.TransactionClient;
+import org.example.microserviceaccount.domain.AccountDomainService;
 import org.example.microserviceaccount.dto.AccountCreateDTO;
 import org.example.microserviceaccount.dto.AccountResponseDTO;
+import org.example.microserviceaccount.dto.AccountSummaryDTO;
+import org.example.microserviceaccount.dto.external.TransactionDTO;
 import org.example.microserviceaccount.entity.Account;
 import org.example.microserviceaccount.mapper.AccountMapper;
 import org.example.microserviceaccount.repository.AccountRepository;
@@ -12,7 +16,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,13 +31,19 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class AccountServiceTest {
     @Mock
-    AccountRepository accountRepository;
+    private AccountRepository accountRepository;
 
     @Mock
     private AccountMapper accountMapper;
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private AccountDomainService accountDomainService;
+
+    @Mock
+    private TransactionClient transactionClient;
 
     @InjectMocks
     private AccountService accountService;
@@ -46,7 +60,7 @@ public class AccountServiceTest {
         accountEntity.setId(1L);
         accountEntity.setEmail("test@example.com");
         accountEntity.setUserName("testuser");
-        accountEntity.setPassword("password123"); // FIX: Am setat parola pentru a nu fi null la encode
+        accountEntity.setPassword("password123");
         accountEntity.setCreatedAt(LocalDate.now());
 
         AccountResponseDTO responseDTO = new AccountResponseDTO();
@@ -88,7 +102,6 @@ public class AccountServiceTest {
             accountService.createAccount(accountCreateDTO);
         });
 
-        // FIX: Am actualizat mesajul așteptat conform logicii din Service ("already in use")
         assertTrue(exception.getMessage().contains("already in use"));
 
         verify(accountRepository, never()).save(any(Account.class));
@@ -104,7 +117,6 @@ public class AccountServiceTest {
         AccountResponseDTO expectedResponse = new AccountResponseDTO();
         expectedResponse.setId(accountId);
 
-        // FIX: Am adăugat comportamentul mock-urilor care lipsea
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
         when(accountMapper.accountToAccountResponseDTO(account)).thenReturn(expectedResponse);
 
@@ -114,5 +126,116 @@ public class AccountServiceTest {
         // Assert
         assertNotNull(result); // E bine să verifici și că nu e null
         assertEquals(accountId, result.getId());
+    }
+
+    @Test
+    void getAccountSummary_Successful() {
+        // Arrange
+        Long accountId = 100L;
+        Account account = new Account();
+        account.setId(accountId);
+        account.setUserName("testuser");
+        account.setEmail("test@mail.com");
+
+        // Setup tranzactii simulate de la microserviciul extern
+        TransactionDTO incomeTx = new TransactionDTO();
+        incomeTx.setAmount(BigDecimal.valueOf(1500));
+        incomeTx.setType("INCOME");
+
+        TransactionDTO expenseTx = new TransactionDTO();
+        expenseTx.setAmount(BigDecimal.valueOf(500));
+        expenseTx.setType("EXPENSE");
+
+        List<TransactionDTO> transactions = Arrays.asList(incomeTx, expenseTx);
+
+        // Mock comportament
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+        when(transactionClient.getTransactionsByUserId(accountId)).thenReturn(transactions);
+
+        // Act
+        AccountSummaryDTO summary = accountService.getAccountSummary(accountId);
+
+        // Assert
+        assertNotNull(summary);
+        assertEquals(accountId, summary.getAccountId());
+        assertEquals("testuser", summary.getUserName());
+        assertEquals(2, summary.getRecentTransactions().size());
+
+        // Verificam calculul balantei: 1500 (Income) - 500 (Expense) = 1000
+        assertEquals(1000.0, summary.getTotalBalanceCalculated());
+
+        verify(transactionClient, times(1)).getTransactionsByUserId(accountId);
+    }
+
+    @Test
+    void checkAndPromoteToVip_Promotes_WhenIncomeExceedsThreshold() {
+        // Arrange
+        Long accountId = 200L;
+        Account account = new Account();
+        account.setId(accountId);
+        account.setUserName("regularUser");
+
+        // Income total = 1200 > 1000
+        TransactionDTO income1 = new TransactionDTO();
+        income1.setAmount(BigDecimal.valueOf(600));
+        income1.setType("INCOME");
+
+        TransactionDTO income2 = new TransactionDTO();
+        income2.setAmount(BigDecimal.valueOf(600));
+        income2.setType("INCOME");
+
+        List<TransactionDTO> transactions = Arrays.asList(income1, income2);
+
+        Account updatedAccount = new Account();
+        updatedAccount.setId(accountId);
+        updatedAccount.setUserName("regularUser (VIP)");
+
+        AccountResponseDTO responseDTO = new AccountResponseDTO();
+        responseDTO.setUserName("regularUser (VIP)");
+
+        // Mock
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+        when(transactionClient.getTransactionsByUserId(accountId)).thenReturn(transactions);
+        when(accountRepository.save(any(Account.class))).thenReturn(updatedAccount);
+        when(accountMapper.accountToAccountResponseDTO(any(Account.class))).thenReturn(responseDTO);
+
+        // Act
+        AccountResponseDTO result = accountService.checkAndPromoteToVip(accountId);
+
+        // Assert
+        // Verificam ca s-a apelat save cu numele modificat
+        verify(accountRepository).save(argThat(acc -> acc.getUserName().endsWith("(VIP)")));
+        assertEquals("regularUser (VIP)", result.getUserName());
+    }
+
+    @Test
+    void checkAndPromoteToVip_DoesNotPromote_WhenIncomeIsLow() {
+        // Arrange
+        Long accountId = 300L;
+        Account account = new Account();
+        account.setId(accountId);
+        account.setUserName("poorUser");
+
+        // Income total = 800 <= 1000
+        TransactionDTO income1 = new TransactionDTO();
+        income1.setAmount(BigDecimal.valueOf(800));
+        income1.setType("INCOME");
+
+        List<TransactionDTO> transactions = Collections.singletonList(income1);
+        AccountResponseDTO responseDTO = new AccountResponseDTO();
+        responseDTO.setUserName("poorUser");
+
+        // Mock
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+        when(transactionClient.getTransactionsByUserId(accountId)).thenReturn(transactions);
+        when(accountMapper.accountToAccountResponseDTO(account)).thenReturn(responseDTO);
+
+        // Act
+        AccountResponseDTO result = accountService.checkAndPromoteToVip(accountId);
+
+        // Assert
+        // Verificam ca NU s-a apelat save
+        verify(accountRepository, never()).save(any(Account.class));
+        assertEquals("poorUser", result.getUserName());
     }
 }
