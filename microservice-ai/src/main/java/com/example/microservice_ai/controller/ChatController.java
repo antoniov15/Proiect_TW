@@ -18,6 +18,9 @@ import com.example.microservice_ai.dto.ChatCreateDTO;
 import com.example.microservice_ai.dto.ChatDTO;
 import com.example.microservice_ai.dto.MessageCreateDTO;
 import com.example.microservice_ai.dto.MessageDTO;
+import com.example.microservice_ai.entity.Message;
+import com.example.microservice_ai.enums.Role;
+import com.example.microservice_ai.service.IAIService;
 import com.example.microservice_ai.service.IChatService;
 
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,6 +34,20 @@ import jakarta.validation.Valid;
 public class ChatController {
 	@Autowired
 	private IChatService chatService;
+
+	@Autowired
+	private IAIService aiService;
+
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "AI response generated"),
+		@ApiResponse(responseCode = "400", description = "Invalid prompt", content = @Content)
+	})
+	@GetMapping("/ask")
+	public ResponseEntity<String> askAI(@org.springframework.web.bind.annotation.RequestParam("prompt") String prompt) {
+		Message message = new Message(Role.USER, prompt, null);
+		String response = aiService.getAIResponseForMessage(message);
+		return ResponseEntity.ok(response);
+	}
 
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "201", description = "Chat created", content = @Content(schema = @Schema(implementation = ChatDTO.class))),

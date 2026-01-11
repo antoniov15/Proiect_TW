@@ -8,12 +8,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.Mock;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.model.Generation;
+import org.springframework.ai.chat.prompt.Prompt;
 
 import com.example.microservice_ai.entity.Chat;
 import com.example.microservice_ai.entity.Message;
@@ -31,16 +33,20 @@ class AIServiceImplTest {
     private MessageRepository messageRepository;
 
     @Mock
-    private RestTemplate restTemplate;
+    private ChatModel chatModel;
+
+    @Mock
+    private ChatResponse chatResponse;
+
+    @Mock
+    private Generation generation;
 
     private AIServiceImpl aiService;
     private Chat chat;
 
     @BeforeEach
     void setUp() {
-        aiService = new AIServiceImpl(messageRepository);
-        ReflectionTestUtils.setField(aiService, "aiApiUrl", "http://localhost:8089/ai");
-        ReflectionTestUtils.setField(aiService, "restTemplate", restTemplate);
+        aiService = new AIServiceImpl(chatModel, messageRepository);
         
         chat = new Chat();
         chat.setTitle("Test Chat");
@@ -50,8 +56,11 @@ class AIServiceImplTest {
     @DisplayName("Should get AI response for single message")
     void testGetAIResponseForMessage() {
         Message message = new Message(Role.USER, "Hello AI", chat);
-        when(restTemplate.postForObject(eq("http://localhost:8089/ai"), eq("Hello AI"), eq(String.class)))
-            .thenReturn("AI Response");
+        
+        AssistantMessage assistantMessage = new AssistantMessage("AI Response");
+        when(chatModel.call(any(Prompt.class))).thenReturn(chatResponse);
+        when(chatResponse.getResult()).thenReturn(generation);
+        when(generation.getOutput()).thenReturn(assistantMessage);
         
         String result = aiService.getAIResponseForMessage(message);
         
@@ -65,8 +74,10 @@ class AIServiceImplTest {
         Message msg2 = new Message(Role.ASSISTANT, "Hi", chat);
         List<Message> messages = List.of(msg1, msg2);
         
-        when(restTemplate.postForObject(eq("http://localhost:8089/ai"), any(String.class), eq(String.class)))
-            .thenReturn("Conversation response");
+        AssistantMessage assistantMessage = new AssistantMessage("Conversation response");
+        when(chatModel.call(any(Prompt.class))).thenReturn(chatResponse);
+        when(chatResponse.getResult()).thenReturn(generation);
+        when(generation.getOutput()).thenReturn(assistantMessage);
         
         String result = aiService.getAIResponseForConversation(messages);
         

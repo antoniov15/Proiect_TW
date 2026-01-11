@@ -138,7 +138,8 @@ services:
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
       - AI_API_KEY=${AI_API_KEY}
-      - AI_API_URL=${AI_API_URL}
+      - AI_API_URL=${AI_API_URL:-https://api.openai.com}
+      - AI_MODEL=${AI_MODEL:-gpt-4o-mini}
     depends_on:
       eurekaserver:
         condition: service_healthy
