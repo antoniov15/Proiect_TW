@@ -5,6 +5,7 @@ import com.financeassistant.transaction.dto.TransactionViewDTO;
 import com.financeassistant.transaction.dto.UpdateTransactionDTO;
 import com.financeassistant.transaction.entity.Category;
 import com.financeassistant.transaction.entity.Transaction;
+import com.financeassistant.transaction.entity.TransactionType;
 import com.financeassistant.transaction.exception.ResourceNotFoundException;
 import com.financeassistant.transaction.mapper.TransactionMapper;
 import com.financeassistant.transaction.repository.CategoryRepository;
@@ -112,17 +113,22 @@ class TransactionServiceTest {
         dto.setUserId(1L);
         dto.setAmount(new BigDecimal("100.00"));
         dto.setCategoryId(1L);
+        dto.setType(TransactionType.EXPENSE);
 
         Category category = new Category();
         category.setId(1L);
+        category.setType(TransactionType.EXPENSE);
 
+        Transaction transactionToSave = new Transaction();
         Transaction savedTransaction = new Transaction();
         savedTransaction.setId(10L);
         savedTransaction.setCategory(category);
+        savedTransaction.setType(TransactionType.EXPENSE);
 
         TransactionViewDTO expectedViewDTO = new TransactionViewDTO();
         expectedViewDTO.setId(10L);
 
+        when(transactionMapper.toEntity(any(CreateTransactionDTO.class))).thenReturn(transactionToSave);
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
         when(transactionRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
         when(transactionMapper.toViewDTO(savedTransaction)).thenReturn(expectedViewDTO);

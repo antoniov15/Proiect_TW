@@ -71,7 +71,7 @@ class TransactionDomainServiceTest {
     @DisplayName("Should throw exception for year older than 2000")
     void testValidateMonthlyExpenseRequest_OldYear() {
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
-                transactionDomainService.validateMonthlyExpense(1999)
+                transactionDomainService.validateMonthlyExpense(1L, 1999, 10)
         );
         assertTrue(exception.getMessage().contains("Year must be between 2000"));
     }

@@ -156,7 +156,7 @@ public class TransactionService {
     @Transactional(readOnly = true)
     public BigDecimal getMonthlyExpense(Long userId, int month, int year) {
 
-        transactionDomainService.validateMonthlyExpense(year);
+        transactionDomainService.validateMonthlyExpense(userId, year, month);
 
         return transactionRepository.calculateMonthlyExpense(userId, month, year);
     }

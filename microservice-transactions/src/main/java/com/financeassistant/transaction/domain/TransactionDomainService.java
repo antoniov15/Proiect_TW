@@ -19,15 +19,21 @@ public class TransactionDomainService {
         if (category == null) {
             throw new IllegalArgumentException("Category cannot be null");
         }
-        if (!category.getType().name().equals(transactionType.name())) {
+        if (category.getType() != null && !category.getType().name().equals(transactionType.name())) {
             throw new IllegalArgumentException("Transaction type does not match category type");
         }
     }
 
-    public void validateMonthlyExpense(int year) {
+    public void validateMonthlyExpense(Long userId, int year, int month) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID is required for budget check.");
+        }
         int currentYear = LocalDate.now().getYear();
         if (year > currentYear || year < 2000) {
             throw new IllegalArgumentException("Year must be between 2000 and " + currentYear);
+        }
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("Month must be between 1 and 12");
         }
     }
 
