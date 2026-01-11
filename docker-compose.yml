@@ -161,6 +161,11 @@ services:
       - SPRING_PROFILES_ACTIVE=default
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
+      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_SCOPE=openid,profile,email
+      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_REDIRECT_URI={baseUrl}/login/oauth2/code/{registrationId}
+      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_GOOGLE_ISSUER_URI=https://accounts.google.com
     depends_on:
       microservice-account:
         condition: service_started
@@ -174,7 +179,7 @@ services:
       file: common-config.yml
       service: microservice-base-config
 
-  # Gateway Server - Instanța 2 (Open - Pentru Testare API) - NOU
+  # Gateway Server - Instanța 2 (Open - Pentru Testare API)
   gatewayserver-open:
     image: gatewayserver-open
     container_name: gatewayserver-open
