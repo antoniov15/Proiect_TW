@@ -109,4 +109,11 @@ public class AccountController {
         AccountSummaryDTO summary = accountService.getAccountSummary(id);
         return ResponseEntity.ok(summary);
     }
+
+    @PutMapping("/{id}/promote-vip")
+    @PreAuthorize("@accountSecurity.isOwnerOrAdmin(authentication, #id)")
+    public ResponseEntity<AccountResponseDTO> promoteToVip(@PathVariable Long id) {
+        AccountResponseDTO updatedAccount = accountService.checkAndPromoteToVip(id);
+        return ResponseEntity.ok(updatedAccount);
+    }
 }

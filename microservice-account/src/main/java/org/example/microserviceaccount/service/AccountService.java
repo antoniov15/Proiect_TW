@@ -226,4 +226,31 @@ public class AccountService {
 
         return summary;
     }
+
+    @Transactional
+    public AccountResponseDTO checkAndPromoteToVip(Long accountId) {
+        // account
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account with id " + accountId + " not found"));
+
+        // tranzactiile din microserviciul extern
+        List<TransactionDTO> transactions = transactionClient.getTransactionsByUserId(accountId);
+
+        // calcul INCOME
+        double totalIncome = transactions.stream()
+                .filter(t -> "INCOME".equalsIgnoreCase(t.getType()))
+                .mapToDouble(t -> t.getAmount().doubleValue())
+                .sum();
+
+        // Daca are peste 1000, devine VIP
+        if (totalIncome > 1000) {
+            String currentName = account.getUserName();
+            if (!currentName.endsWith(" (VIP)")) {
+                account.setUserName(currentName + " (VIP)");
+                account = accountRepository.save(account);
+            }
+        }
+
+        return accountMapper.accountToAccountResponseDTO(account);
+    }
 }
