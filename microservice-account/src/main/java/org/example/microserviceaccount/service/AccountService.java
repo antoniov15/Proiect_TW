@@ -58,7 +58,7 @@ public class AccountService {
      * @param createDTO Obiectul DTO care contine datele necesare pentru crearea contului.
      * @return AccountResponseDTO Detaliile contului creat.
      * @throws IllegalArgumentException Daca email-ul sau username-ul exista deja.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional
     public AccountResponseDTO createAccount(AccountCreateDTO createDTO) {
@@ -85,7 +85,7 @@ public class AccountService {
      * @param id Identificatorul unic al contului.
      * @return AccountResponseDTO Detaliile contului gasit.
      * @throws ResourceNotFoundException Daca nu exista niciun cont cu ID-ul specificat.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional(readOnly = true)
     public AccountResponseDTO getAccountById(Long id) {
@@ -98,7 +98,7 @@ public class AccountService {
      * Returneaza o lista cu toate conturile existente, ordonate crescator dupa ID.
      *
      * @return O lista de obiecte AccountResponseDTO.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional(readOnly = true)
     public List<AccountResponseDTO> getAllAccounts() {
@@ -115,7 +115,7 @@ public class AccountService {
      * @return AccountResponseDTO Contul actualizat.
      * @throws ResourceNotFoundException Daca contul nu este gasit.
      * @throws IllegalArgumentException Daca email-ul sau username-ul sunt deja folosite de alt cont.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional
     public AccountResponseDTO updateAccount(Long id, AccountCreateDTO updateDTO) {
@@ -147,7 +147,7 @@ public class AccountService {
      *
      * @param id ID-ul contului de sters.
      * @throws ResourceNotFoundException Daca contul nu este gasit.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional
     public void deleteAccount(Long id) {
@@ -162,7 +162,7 @@ public class AccountService {
      * @param email Adresa de email cautata.
      * @return AccountResponseDTO Detaliile contului.
      * @throws ResourceNotFoundException Daca nu exista cont cu acest email.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional(readOnly = true)
     public AccountResponseDTO getAccountByEmail(String email) {
@@ -177,7 +177,7 @@ public class AccountService {
      *
      * @param direction Directia sortarii ("asc" sau "desc").
      * @return Lista de conturi sortata.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional(readOnly = true)
     public List<AccountResponseDTO> getAccountsSortedByCreationDate(String direction) {
@@ -196,7 +196,7 @@ public class AccountService {
      *
      * @param usernameFragment Textul cautat in username.
      * @return Lista conturilor care se potrivesc criteriului.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional(readOnly = true)
     public List<AccountResponseDTO> findAccountsByUsernameContaining(String usernameFragment) {
@@ -210,7 +210,7 @@ public class AccountService {
      * @param loginDTO Datele de login (identifier si parola).
      * @return AccountResponseDTO Daca autentificarea are succes.
      * @throws ResourceNotFoundException Daca credentialele sunt invalide.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional(readOnly = true)
     public AccountResponseDTO login(LoginRequestDTO loginDTO) {
@@ -232,7 +232,7 @@ public class AccountService {
      * @param newPassword Noua parola (necriptata).
      * @return AccountResponseDTO Contul actualizat.
      * @throws ResourceNotFoundException Daca contul nu este gasit.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional
     public AccountResponseDTO resetPassword(String email, String newPassword) {
@@ -251,7 +251,7 @@ public class AccountService {
      * @param startDate Data de inceput.
      * @param endDate Data de sfarsit.
      * @return Numarul de utilizatori noi.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional(readOnly = true)
     public Integer countNewUsers(LocalDate startDate, LocalDate endDate) {
@@ -266,7 +266,7 @@ public class AccountService {
      *
      * @param userId ID-ul utilizatorului.
      * @return Mesaj de confirmare din baza de date.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional
     public String anonymizeUserData(Long userId) {
@@ -282,7 +282,7 @@ public class AccountService {
      * @param email Email-ul de verificat.
      * @param username Username-ul de verificat.
      * @return Mesaj care indica disponibilitatea.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional(readOnly = true)
     public String checkAccountAvailability(String email, String username) {
@@ -302,7 +302,7 @@ public class AccountService {
      * @param accountId ID-ul contului pentru care se face sumarul.
      * @return AccountSummaryDTO Un obiect complex ce contine datele contului si tranzactiile recente.
      * @throws ResourceNotFoundException Daca contul nu este gasit.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional(readOnly = true)
     public AccountSummaryDTO getAccountSummary(Long accountId) {
@@ -343,7 +343,7 @@ public class AccountService {
      * @param accountId ID-ul contului de verificat.
      * @return AccountResponseDTO Contul, posibil actualizat cu noul nume (VIP).
      * @throws ResourceNotFoundException Daca contul nu este gasit.
-     * @author [Nume Autor]
+     * @author [Vicas Antonio]
      */
     @Transactional
     public AccountResponseDTO checkAndPromoteToVip(Long accountId) {
