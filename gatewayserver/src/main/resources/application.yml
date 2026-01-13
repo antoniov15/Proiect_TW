@@ -50,11 +50,9 @@ spring:
             - StripPrefix=1
 
         - id: transaction-service
-          uri: lb://microservice-transactions
+          uri: lb://MICROSERVICE-TRANSACTIONS
           predicates:
-            - Path=/microservice-transactions/**
-          filters:
-            - StripPrefix=1
+            - Path=/api/transactions/**
 
         - id: ai-service
           uri: lb://microservice-ai

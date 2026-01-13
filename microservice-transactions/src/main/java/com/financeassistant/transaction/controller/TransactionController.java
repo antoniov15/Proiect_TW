@@ -1,6 +1,7 @@
 package com.financeassistant.transaction.controller;
 
 import com.financeassistant.transaction.dto.CreateTransactionDTO;
+import com.financeassistant.transaction.dto.SmartTransactionDTO;
 import com.financeassistant.transaction.dto.TransactionViewDTO;
 import com.financeassistant.transaction.dto.UpdateTransactionDTO;
 import com.financeassistant.transaction.entity.TransactionType;
@@ -25,6 +26,16 @@ public class TransactionController {
     @Autowired
     public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @GetMapping("/sync-check")
+    public ResponseEntity<String> checkSync() {
+        return ResponseEntity.ok(transactionService.checkUserSync());
+    }
+
+    @PostMapping("/smart")
+    public ResponseEntity<TransactionViewDTO> createSmartTransaction(@RequestBody SmartTransactionDTO dto) {
+        return new ResponseEntity<>(transactionService.createSmartTransaction(dto), HttpStatus.CREATED);
     }
 
     @PostMapping

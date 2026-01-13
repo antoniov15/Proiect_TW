@@ -20,6 +20,7 @@ import org.example.microserviceaccount.dto.external.TransactionDTO;
 import java.math.BigDecimal;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -370,5 +371,33 @@ public class AccountService {
         }
 
         return accountMapper.accountToAccountResponseDTO(account);
+    }
+
+    @Transactional
+    public Long syncUserByEmail(String email) {
+        return accountRepository.findByEmail(email)
+                .map(Account::getId)
+                .orElseGet(() -> {
+                    return createNewAccount(email);
+                });
+    }
+
+    private Long createNewAccount(String email) {
+        Account newAccount = new Account();
+        newAccount.setEmail(email);
+        newAccount.setUserName(extractNameFromEmail(email));
+        newAccount.setRole("ROLE_USER");
+        newAccount.setCreatedAt(LocalDate.from(LocalDateTime.now()));
+        newAccount.setPassword("GOOGLE_OAUTH_ACCOUNT");
+
+        Account saved = accountRepository.save(newAccount);
+        return saved.getId();
+    }
+
+    private String extractNameFromEmail(String email) {
+        if (email.contains("@")) {
+            return email.substring(0, email.indexOf("@"));
+        }
+        return "Unknown User";
     }
 }
