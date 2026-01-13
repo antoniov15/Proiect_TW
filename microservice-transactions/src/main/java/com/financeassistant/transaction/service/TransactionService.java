@@ -68,8 +68,12 @@ public class TransactionService {
 
         String predictedCategoryName = aiClient.predictCategory(dto.getDescription());
 
-        Category category = categoryRepository.findByName((predictedCategoryName)
-                .strip());
+        String cleanName = predictedCategoryName.strip();
+        Category category = categoryRepository.findByName(cleanName);
+
+        if (category == null) {
+            throw new ResourceNotFoundException("Category predicted by AI not found in DB: " + cleanName);
+        }
 
         Transaction transaction = new Transaction();
         transaction.setUserId(userId);
