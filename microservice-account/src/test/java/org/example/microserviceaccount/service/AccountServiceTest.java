@@ -238,4 +238,174 @@ public class AccountServiceTest {
         verify(accountRepository, never()).save(any(Account.class));
         assertEquals("poorUser", result.getUserName());
     }
+
+    // --- UPDATE ---
+    @Test
+    void updateAccount_Successful() {
+        Long id = 1L;
+        AccountCreateDTO updateDTO = new AccountCreateDTO();
+        updateDTO.setEmail("updated@test.com");
+        updateDTO.setUserName("updatedUser");
+        updateDTO.setPassword("irrelevant");
+
+        Account existingAccount = new Account();
+        existingAccount.setId(id);
+        existingAccount.setEmail("old@test.com");
+        existingAccount.setUserName("oldUser");
+
+        Account updatedAccountEntity = new Account();
+        updatedAccountEntity.setId(id);
+        updatedAccountEntity.setEmail("updated@test.com");
+        updatedAccountEntity.setUserName("updatedUser");
+
+        AccountResponseDTO responseDTO = new AccountResponseDTO();
+        responseDTO.setId(id);
+        responseDTO.setEmail("updated@test.com");
+        responseDTO.setUserName("updatedUser");
+
+        when(accountRepository.findById(id)).thenReturn(Optional.of(existingAccount));
+        // Asigurăm unicitatea (nu găsim alt cont cu noile date)
+        when(accountRepository.findByEmail("updated@test.com")).thenReturn(Optional.empty());
+        when(accountRepository.findByUserName("updatedUser")).thenReturn(Optional.empty());
+
+        when(accountRepository.save(any(Account.class))).thenReturn(updatedAccountEntity);
+        when(accountMapper.accountToAccountResponseDTO(any(Account.class))).thenReturn(responseDTO);
+
+        AccountResponseDTO result = accountService.updateAccount(id, updateDTO);
+
+        assertNotNull(result);
+        assertEquals("updatedUser", result.getUserName());
+        verify(accountRepository).save(existingAccount); // Verificăm că s-a salvat entitatea existentă modificată
+    }
+
+    @Test
+    void updateAccount_ThrowsException_WhenEmailTakenByOther() {
+        Long id = 1L;
+        AccountCreateDTO updateDTO = new AccountCreateDTO();
+        updateDTO.setEmail("taken@test.com");
+
+        Account existingAccount = new Account();
+        existingAccount.setId(id);
+
+        Account otherAccount = new Account();
+        otherAccount.setId(2L); // Alt ID
+        otherAccount.setEmail("taken@test.com");
+
+        when(accountRepository.findById(id)).thenReturn(Optional.of(existingAccount));
+        when(accountRepository.findByEmail("taken@test.com")).thenReturn(Optional.of(otherAccount));
+
+        assertThrows(IllegalArgumentException.class, () -> accountService.updateAccount(id, updateDTO));
+    }
+
+    // --- DELETE ---
+    @Test
+    void deleteAccount_Successful() {
+        Long id = 1L;
+        Account account = new Account();
+        account.setId(id);
+
+        when(accountRepository.findById(id)).thenReturn(Optional.of(account));
+
+        accountService.deleteAccount(id);
+
+        verify(accountRepository).delete(account);
+    }
+
+    @Test
+    void deleteAccount_ThrowsException_WhenNotFound() {
+        Long id = 999L;
+        when(accountRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(org.example.microserviceaccount.exception.ResourceNotFoundException.class,
+                () -> accountService.deleteAccount(id));
+    }
+
+    // --- LISTS (GetAll, Sorted, Search) ---
+    @Test
+    void getAllAccounts_ReturnsList() {
+        List<Account> accounts = Arrays.asList(new Account(), new Account());
+        List<AccountResponseDTO> dtos = Arrays.asList(new AccountResponseDTO(), new AccountResponseDTO());
+
+        when(accountRepository.findAll(any(org.springframework.data.domain.Sort.class))).thenReturn(accounts);
+        when(accountMapper.accountsToAccountResponseDTOs(accounts)).thenReturn(dtos);
+
+        List<AccountResponseDTO> result = accountService.getAllAccounts();
+
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void getAccountsSortedByCreationDate_ReturnsList() {
+        List<Account> accounts = Collections.singletonList(new Account());
+        List<AccountResponseDTO> dtos = Collections.singletonList(new AccountResponseDTO());
+
+        // Verificăm sortarea descrescătoare
+        when(accountRepository.findAll(any(org.springframework.data.domain.Sort.class))).thenReturn(accounts);
+        when(accountMapper.accountsToAccountResponseDTOs(accounts)).thenReturn(dtos);
+
+        List<AccountResponseDTO> result = accountService.getAccountsSortedByCreationDate("desc");
+
+        assertEquals(1, result.size());
+        verify(accountRepository).findAll(argThat((org.springframework.data.domain.Sort sort) ->
+                sort.getOrderFor("createdAt").getDirection().isDescending()));
+    }
+
+    // --- AUTH (Login & Reset) ---
+    @Test
+    void login_Successful() {
+        org.example.microserviceaccount.dto.LoginRequestDTO loginDTO = new org.example.microserviceaccount.dto.LoginRequestDTO();
+        loginDTO.setLoginIdentifier("user@test.com");
+        loginDTO.setPassword("rawPass");
+
+        Account account = new Account();
+        account.setEmail("user@test.com");
+        account.setPassword("encodedPass");
+
+        AccountResponseDTO responseDTO = new AccountResponseDTO();
+        responseDTO.setEmail("user@test.com");
+
+        when(accountRepository.findByEmail("user@test.com")).thenReturn(Optional.of(account));
+        when(passwordEncoder.matches("rawPass", "encodedPass")).thenReturn(true);
+        when(accountMapper.accountToAccountResponseDTO(account)).thenReturn(responseDTO);
+
+        AccountResponseDTO result = accountService.login(loginDTO);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    void login_ThrowsException_InvalidPassword() {
+        org.example.microserviceaccount.dto.LoginRequestDTO loginDTO = new org.example.microserviceaccount.dto.LoginRequestDTO();
+        loginDTO.setLoginIdentifier("user@test.com");
+        loginDTO.setPassword("wrongPass");
+
+        Account account = new Account();
+        account.setPassword("encodedPass");
+
+        when(accountRepository.findByEmail("user@test.com")).thenReturn(Optional.of(account));
+        when(passwordEncoder.matches("wrongPass", "encodedPass")).thenReturn(false);
+
+        assertThrows(org.example.microserviceaccount.exception.ResourceNotFoundException.class,
+                () -> accountService.login(loginDTO));
+    }
+
+    @Test
+    void resetPassword_Successful() {
+        String email = "test@test.com";
+        String newPass = "newPass";
+        Account account = new Account();
+        account.setEmail(email);
+
+        AccountResponseDTO responseDTO = new AccountResponseDTO();
+
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.of(account));
+        when(passwordEncoder.encode(newPass)).thenReturn("encodedNewPass");
+        when(accountRepository.save(account)).thenReturn(account);
+        when(accountMapper.accountToAccountResponseDTO(account)).thenReturn(responseDTO);
+
+        AccountResponseDTO result = accountService.resetPassword(email, newPass);
+
+        assertNotNull(result);
+        verify(passwordEncoder).encode(newPass);
+    }
 }
