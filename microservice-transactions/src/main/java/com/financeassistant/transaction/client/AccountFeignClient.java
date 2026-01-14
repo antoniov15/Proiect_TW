@@ -1,6 +1,6 @@
 package com.financeassistant.transaction.client;
 
-import org.example.microserviceaccount.dto.AccountResponseDTO;
+import com.financeassistant.transaction.dto.AccountResponseDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

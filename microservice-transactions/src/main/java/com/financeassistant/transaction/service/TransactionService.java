@@ -76,7 +76,7 @@ public class TransactionService {
                 var accountDto = accountClient.getAccountById(userId);
 
                 String line = String.format("User: %s (%s) - Total Spent: %.2f RON",
-                        accountDto.getUserName(), accountDto.getEmail(), totalSpent);
+                        accountDto.getName(), accountDto.getEmail(), totalSpent);
                 report.add(line);
 
             } catch (Exception e) {

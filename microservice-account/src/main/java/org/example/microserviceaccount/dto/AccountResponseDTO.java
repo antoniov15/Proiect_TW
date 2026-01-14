@@ -7,8 +7,6 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 @Data
-@Setter
-@Getter
 public class AccountResponseDTO {
     private Long id;
     private String userName;
