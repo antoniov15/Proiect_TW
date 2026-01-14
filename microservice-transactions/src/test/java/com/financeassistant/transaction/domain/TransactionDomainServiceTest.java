@@ -54,12 +54,12 @@ class TransactionDomainServiceTest {
     @DisplayName("Should throw exception when Type mismatches Category Type")
     void testValidateTransactionCreation_TypeMismatch() {
         Category category = new Category();
-        category.setType(TransactionType.INCOME); // Categorie de venit
+        category.setType(TransactionType.INCOME);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 transactionDomainService.validateTransactionCreation(
                         BigDecimal.valueOf(100),
-                        TransactionType.EXPENSE, // Încercăm să facem o cheltuială
+                        TransactionType.EXPENSE,
                         category
                 )
         );
