@@ -1,8 +1,8 @@
 package com.example.microservice_ai.service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -12,24 +12,24 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.example.microservice_ai.domain.model.ChatAggregate;
+import com.example.microservice_ai.domain.model.MessageModel;
+import com.example.microservice_ai.domain.service.ChatDomainService;
 import com.example.microservice_ai.dto.ChatCreateDTO;
 import com.example.microservice_ai.dto.ChatDTO;
 import com.example.microservice_ai.dto.MessageCreateDTO;
 import com.example.microservice_ai.dto.MessageDTO;
-import com.example.microservice_ai.entity.Chat;
-import com.example.microservice_ai.entity.Message;
 import com.example.microservice_ai.enums.Role;
 import com.example.microservice_ai.exception.AccountNotFoundException;
-import com.example.microservice_ai.repository.ChatRepository;
-import com.example.microservice_ai.repository.MessageRepository;
 
 /**
  * Mock tests for ChatServiceImpl.
@@ -39,37 +39,33 @@ import com.example.microservice_ai.repository.MessageRepository;
 class ChatServiceImplTest {
 
     @Mock
-    private ChatRepository chatRepository;
-
-    @Mock
-    private MessageRepository messageRepository;
+    private ChatDomainService chatDomainService;
 
     @InjectMocks
     private ChatServiceImpl chatService;
 
-    private Chat chat;
-    private Message message;
+    private ChatAggregate chatAggregate;
+    private MessageModel messageModel;
 
     @BeforeEach
     void setUp() {
-        chat = new Chat();
-        chat.setTitle("Test Chat");
-        
-        message = new Message(Role.USER, "Hello", chat);
+        chatAggregate = new ChatAggregate(1L, "Test Chat", Instant.now());
+        messageModel = new MessageModel(1L, Role.USER, "Hello", 1L, Instant.now());
     }
 
     @Test
     @DisplayName("Should create chat without messages")
     void testCreateChatWithoutMessages() {
         ChatCreateDTO dto = new ChatCreateDTO("New Chat", null);
+        ChatAggregate newChat = new ChatAggregate(2L, "New Chat", Instant.now());
         
-        when(chatRepository.save(any(Chat.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(chatDomainService.createChat("New Chat")).thenReturn(newChat);
         
         ChatDTO result = chatService.createChat(dto);
         
         assertNotNull(result);
         assertEquals("New Chat", result.getTitle());
-        verify(chatRepository, times(1)).save(any(Chat.class));
+        verify(chatDomainService, times(1)).createChat("New Chat");
     }
 
     @Test
@@ -79,21 +75,24 @@ class ChatServiceImplTest {
         messages.add(new MessageCreateDTO("USER", "Hello"));
         ChatCreateDTO dto = new ChatCreateDTO("Chat with messages", messages);
         
-        when(chatRepository.save(any(Chat.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(messageRepository.save(any(Message.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(messageRepository.findByChatIdOrderByCreatedAtAsc(any())).thenReturn(List.of(message));
+        ChatAggregate newChat = new ChatAggregate(2L, "Chat with messages", Instant.now());
+        ChatAggregate chatWithMessages = new ChatAggregate(2L, "Chat with messages", Instant.now());
+        chatWithMessages.addMessage(messageModel);
+        
+        when(chatDomainService.createChat("Chat with messages")).thenReturn(newChat);
+        when(chatDomainService.addMessageToChat(eq(2L), any(MessageModel.class))).thenReturn(messageModel);
+        when(chatDomainService.getChatById(2L)).thenReturn(chatWithMessages);
         
         ChatDTO result = chatService.createChat(dto);
         
         assertNotNull(result);
-        verify(messageRepository, times(1)).save(any(Message.class));
+        verify(chatDomainService, times(1)).addMessageToChat(eq(2L), any(MessageModel.class));
     }
 
     @Test
     @DisplayName("Should get chat by id")
     void testGetChat() {
-        when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
-        when(messageRepository.findByChatIdOrderByCreatedAtAsc(any())).thenReturn(List.of(message));
+        when(chatDomainService.getChatById(1L)).thenReturn(chatAggregate);
         
         ChatDTO result = chatService.getChat(1L);
         
@@ -104,7 +103,7 @@ class ChatServiceImplTest {
     @Test
     @DisplayName("Should throw exception when chat not found")
     void testGetChatNotFound() {
-        when(chatRepository.findById(999L)).thenReturn(Optional.empty());
+        when(chatDomainService.getChatById(999L)).thenThrow(new AccountNotFoundException("Chat not found"));
         
         assertThrows(AccountNotFoundException.class, () -> chatService.getChat(999L));
     }
@@ -112,11 +111,11 @@ class ChatServiceImplTest {
     @Test
     @DisplayName("Should list all chats")
     void testListChats() {
-        Chat chat2 = new Chat();
-        chat2.setTitle("Chat 2");
+        ChatAggregate chat2 = new ChatAggregate(2L, "Chat 2", Instant.now());
         
-        when(chatRepository.findAll()).thenReturn(List.of(chat, chat2));
-        when(messageRepository.findByChatIdOrderByCreatedAtAsc(any())).thenReturn(new ArrayList<>());
+        when(chatDomainService.getAllChats()).thenReturn(List.of(chatAggregate, chat2));
+        when(chatDomainService.getChatById(1L)).thenReturn(chatAggregate);
+        when(chatDomainService.getChatById(2L)).thenReturn(chat2);
         
         List<ChatDTO> result = chatService.listChats();
         
@@ -127,10 +126,10 @@ class ChatServiceImplTest {
     @DisplayName("Should update chat title")
     void testUpdateChat() {
         ChatCreateDTO updateDto = new ChatCreateDTO("Updated Title", null);
+        ChatAggregate updatedChat = new ChatAggregate(1L, "Updated Title", Instant.now());
         
-        when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
-        when(chatRepository.save(any(Chat.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(messageRepository.findByChatIdOrderByCreatedAtAsc(any())).thenReturn(new ArrayList<>());
+        when(chatDomainService.updateChat(1L, "Updated Title")).thenReturn(updatedChat);
+        when(chatDomainService.getChatById(1L)).thenReturn(updatedChat);
         
         ChatDTO result = chatService.updateChat(1L, updateDto);
         
@@ -140,21 +139,20 @@ class ChatServiceImplTest {
     @Test
     @DisplayName("Should delete chat and its messages")
     void testDeleteChat() {
-        when(messageRepository.findByChatIdOrderByCreatedAtAsc(1L)).thenReturn(List.of(message));
+        doNothing().when(chatDomainService).deleteChat(1L);
         
         chatService.deleteChat(1L);
         
-        verify(messageRepository, times(1)).deleteAll(anyList());
-        verify(chatRepository, times(1)).deleteById(1L);
+        verify(chatDomainService, times(1)).deleteChat(1L);
     }
 
     @Test
     @DisplayName("Should add message to chat")
     void testAddMessage() {
         MessageCreateDTO msgDto = new MessageCreateDTO("USER", "New message");
+        MessageModel savedMessage = new MessageModel(2L, Role.USER, "New message", 1L, Instant.now());
         
-        when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
-        when(messageRepository.save(any(Message.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(chatDomainService.addMessageToChat(eq(1L), any(MessageModel.class))).thenReturn(savedMessage);
         
         MessageDTO result = chatService.addMessage(1L, msgDto);
         
@@ -165,10 +163,9 @@ class ChatServiceImplTest {
     @Test
     @DisplayName("Should get messages for chat")
     void testGetMessagesForChat() {
-        Message msg2 = new Message(Role.ASSISTANT, "Response", chat);
+        MessageModel msg2 = new MessageModel(2L, Role.ASSISTANT, "Response", 1L, Instant.now());
         
-        when(chatRepository.existsById(1L)).thenReturn(true);
-        when(messageRepository.findByChatIdOrderByCreatedAtAsc(1L)).thenReturn(List.of(message, msg2));
+        when(chatDomainService.getChatMessages(1L)).thenReturn(List.of(messageModel, msg2));
         
         List<MessageDTO> result = chatService.getMessagesForChat(1L);
         
@@ -178,7 +175,7 @@ class ChatServiceImplTest {
     @Test
     @DisplayName("Should throw exception when getting messages for non-existent chat")
     void testGetMessagesForChatNotFound() {
-        when(chatRepository.existsById(999L)).thenReturn(false);
+        when(chatDomainService.getChatMessages(999L)).thenThrow(new AccountNotFoundException("Chat not found"));
         
         assertThrows(AccountNotFoundException.class, () -> chatService.getMessagesForChat(999L));
     }

@@ -23,7 +23,16 @@ public class ChatDomainRepositoryImpl implements ChatDomainRepository {
 
     @Override
     public ChatAggregate save(ChatAggregate chat) {
-        Chat entity = DomainMapper.toEntity(chat);
+        Chat entity;
+        if (chat.getId() != null) {
+            // Update existing entity
+            entity = chatRepository.findById(chat.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Chat not found: " + chat.getId()));
+            DomainMapper.updateEntity(entity, chat);
+        } else {
+            // Create new entity
+            entity = DomainMapper.toEntity(chat);
+        }
         Chat saved = chatRepository.save(entity);
         return DomainMapper.toDomain(saved);
     }

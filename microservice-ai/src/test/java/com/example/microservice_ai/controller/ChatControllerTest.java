@@ -13,9 +13,11 @@ import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,10 +25,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.example.microservice_ai.TestSecurityConfig;
 import com.example.microservice_ai.dto.ChatCreateDTO;
 import com.example.microservice_ai.dto.ChatDTO;
 import com.example.microservice_ai.dto.MessageCreateDTO;
 import com.example.microservice_ai.dto.MessageDTO;
+import com.example.microservice_ai.service.IAIService;
 import com.example.microservice_ai.service.IChatService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,6 +38,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * API tests for ChatController using MockMvc.
  */
 @WebMvcTest(ChatController.class)
+@ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 @DisplayName("ChatController API Tests")
 class ChatControllerTest {
 
@@ -42,6 +48,9 @@ class ChatControllerTest {
 
     @MockBean
     private IChatService chatService;
+
+    @MockBean
+    private IAIService aiService;
 
     @Autowired
     private ObjectMapper objectMapper;

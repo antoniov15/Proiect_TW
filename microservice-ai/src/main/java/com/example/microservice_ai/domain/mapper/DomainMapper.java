@@ -19,6 +19,15 @@ public class DomainMapper {
         return entity;
     }
 
+    /**
+     * Updates an existing Chat entity with values from a ChatAggregate domain object.
+     * This preserves the entity's identity (id, createdAt) while updating mutable fields.
+     */
+    public static void updateEntity(Chat entity, ChatAggregate domain) {
+        if (entity == null || domain == null) return;
+        entity.setTitle(domain.getTitle());
+    }
+
     public static MessageModel toDomain(Message entity) {
         if (entity == null) return null;
         return new MessageModel(
