@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 @Profile("!dev & !no-security")
 public class SecurityConfig {
 
-    //TODO: set your GCP project ID
     private final String idProject = "finance-assistant-gateway";
 
     @Bean
