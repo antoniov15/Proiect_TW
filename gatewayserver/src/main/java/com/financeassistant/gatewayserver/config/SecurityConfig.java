@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableWebFluxSecurity
 //@Profile("test")
-@Profile("!dev")
+@Profile("!dev & !no-security")
 public class SecurityConfig {
 
     //TODO: set your GCP project ID
@@ -55,6 +55,8 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/", "/index.html", "/login/**", "/oauth2/**", "/actuator/**").permitAll()
+                        // Swagger UI - centralized
+                        .pathMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**").permitAll()
 
                         .pathMatchers(HttpMethod.DELETE, "/microservice-transactions/**").hasRole("ADMIN")
                         .anyExchange().authenticated()

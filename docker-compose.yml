@@ -81,8 +81,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://accountsdb:5432/finance_app_db?currentSchema=account_schema
-      - TRANSACTION_DB_USERNAME=${POSTGRES_USER}
-      - TRANSACTION_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_PROFILES_ACTIVE=prod
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
@@ -105,7 +105,7 @@ services:
       context: ./microservice-transactions
       dockerfile: Dockerfile
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://transactionsdb:5432/finance_app_db?currentSchema=transaction_schema
+      - TRANSACTION_DB_URL=jdbc:postgresql://transactionsdb:5432/finance_app_db?currentSchema=transaction_schema
       - TRANSACTION_DB_USERNAME=${POSTGRES_USER}
       - TRANSACTION_DB_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_PROFILES_ACTIVE=prod
@@ -141,6 +141,8 @@ services:
       - AI_API_URL=${AI_API_URL:-https://api.openai.com}
       - AI_MODEL=${AI_MODEL:-gpt-4o-mini}
     depends_on:
+      aidb:
+        condition: service_started
       eurekaserver:
         condition: service_healthy
       zipkin:
