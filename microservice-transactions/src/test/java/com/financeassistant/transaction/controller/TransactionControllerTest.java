@@ -2,6 +2,7 @@ package com.financeassistant.transaction.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeassistant.transaction.dto.CreateTransactionDTO;
+import com.financeassistant.transaction.dto.SmartTransactionDTO;
 import com.financeassistant.transaction.dto.TransactionViewDTO;
 import com.financeassistant.transaction.dto.UpdateTransactionDTO;
 import com.financeassistant.transaction.entity.TransactionType;
@@ -13,6 +14,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 import java.math.BigDecimal;
@@ -37,6 +40,27 @@ class TransactionControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Test
+    void createSmartTransaction_ShouldReturnCreated() throws Exception {
+        SmartTransactionDTO input = new SmartTransactionDTO();
+        input.setAmount(50.0);
+        input.setDescription("Taxi");
+
+        TransactionViewDTO output = new TransactionViewDTO();
+        output.setId(1L);
+        output.setAmount(BigDecimal.valueOf(50.0));
+
+        when(transactionService.createSmartTransaction(any(SmartTransactionDTO.class))).thenReturn(output);
+
+        mockMvc.perform(post("/api/transactions/smart")
+                        .with(jwt().jwt(builder -> builder.claim("email", "test@test.com")))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1));
+    }
 
     @Test
     void createTransaction_ValidInput_ReturnsCreated() throws Exception {
