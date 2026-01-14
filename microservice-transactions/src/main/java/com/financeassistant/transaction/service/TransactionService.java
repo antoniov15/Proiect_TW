@@ -23,8 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,6 +54,37 @@ public class TransactionService {
         this.transactionDomainService = new TransactionDomainService();
         this.accountClient = accountClient;
         this.aiClient = aiClient;
+    }
+
+    public List<String> getGlobalAdminReport() {
+        List<Transaction> allTransactions = transactionRepository.findAll();
+
+        Map<Long, BigDecimal> totalsByUser = allTransactions.stream()
+                .collect(Collectors.groupingBy(
+                        Transaction::getUserId,
+                        Collectors.reducing(
+                                BigDecimal.ZERO,
+                                Transaction::getAmount,
+                                BigDecimal::add
+                        )
+                ));
+
+        List<String> report = new ArrayList<>();
+
+        totalsByUser.forEach((userId, totalSpent) -> {
+            try {
+                var accountDto = accountClient.getAccountById(userId);
+
+                String line = String.format("User: %s (%s) - Total Spent: %.2f RON",
+                        accountDto.getUserName(), accountDto.getEmail(), totalSpent);
+                report.add(line);
+
+            } catch (Exception e) {
+                report.add("User ID: " + userId + " - Total Spent: " + totalSpent + " (Account Info Unavailable)");
+            }
+        });
+
+        return report;
     }
 
     public String checkUserSync() {

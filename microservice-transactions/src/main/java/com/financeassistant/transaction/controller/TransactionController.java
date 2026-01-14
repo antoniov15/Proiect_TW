@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,13 @@ public class TransactionController {
     @Autowired
     public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @GetMapping("/admin/global-summary")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<String>> getGlobalSummary() {
+        log.info("Admin accessing global summary report");
+        return ResponseEntity.ok(transactionService.getGlobalAdminReport());
     }
 
     @GetMapping("/sync-check")

@@ -6,6 +6,7 @@ import com.financeassistant.transaction.repository.CategoryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,27 +25,34 @@ public class DataInitializer implements CommandLineRunner {
         if (categoryRepository.count() == 0) {
             log.info("Populating categories table...");
 
-            Category category1 = new Category();
-            category1.setType(TransactionType.INCOME);
-            category1.setName("Salariu");
-            categoryRepository.save(category1);
-
-            Category category2 = new Category();
-            category2.setType(TransactionType.EXPENSE);
-            category2.setName("Cumparaturi");
-            categoryRepository.save(category2);
-
-            Category category3 = new Category();
-            category3.setType(TransactionType.EXPENSE);
-            category3.setName("Facturi");
-            categoryRepository.save(category3);
-
-            Category category4 = new Category();
-            category4.setName("Mancare");
-            category4.setType(TransactionType.EXPENSE);
-            categoryRepository.save(category4);
+            createCategoryIfNotExists("Salariu", TransactionType.INCOME);
+            createCategoryIfNotExists("Cumparaturi", TransactionType.EXPENSE);
+            createCategoryIfNotExists("Facturi", TransactionType.EXPENSE);
+            createCategoryIfNotExists("Mancare", TransactionType.EXPENSE);
+            createCategoryIfNotExists("Food", TransactionType.EXPENSE);      // Pentru AI
+            createCategoryIfNotExists("Transport", TransactionType.EXPENSE); // Pentru AI
+            createCategoryIfNotExists("Entertainment", TransactionType.EXPENSE); // Pentru AI
+            createCategoryIfNotExists("Health", TransactionType.EXPENSE);    // Pentru AI
+            createCategoryIfNotExists("Utilities", TransactionType.EXPENSE); // Pentru AI
+            createCategoryIfNotExists("Income", TransactionType.INCOME);     // Pentru AI
 
             log.info("Finished populating categories.");
+        }
+    }
+
+    private void createCategoryIfNotExists(String name, TransactionType type) {
+        try {
+            if (categoryRepository.findByName(name) == null) {
+                Category category = new Category();
+                category.setName(name);
+                category.setType(type);
+                categoryRepository.save(category);
+                log.info("Inserted category: {}", name);
+            }
+        } catch (DataIntegrityViolationException | org.springframework.orm.jpa.JpaSystemException e) {
+            log.info("Category '{}' already exists (skipped).", name);
+        } catch (Exception e) {
+            log.error("Error creating category '{}': {}", name, e.getMessage());
         }
     }
 }

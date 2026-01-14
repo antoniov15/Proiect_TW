@@ -43,7 +43,7 @@ services:
     networks:
       - finance-network
 
-  # Zipkin (NOU - Pentru Tracing)
+  # Zipkin (Pentru Tracing)
   zipkin:
     image: openzipkin/zipkin
     ports:
@@ -100,7 +100,31 @@ services:
   # Microservice Transactions
   microservice-transactions:
     image: microservice-transactions
-    # Nu punem container_name fix pentru a permite scalarea (ex: --scale microservice-transactions=2)
+    container_name: microservice-transactions
+    build:
+      context: ./microservice-transactions
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://transactionsdb:5432/finance_app_db?currentSchema=transaction_schema
+      - TRANSACTION_DB_USERNAME=${POSTGRES_USER}
+      - TRANSACTION_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_PROFILES_ACTIVE=prod
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
+    depends_on:
+      transactionsdb:
+        condition: service_started
+      eurekaserver:
+        condition: service_healthy
+      zipkin:
+        condition: service_started
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
+
+  microservice-transactions-2:
+    image: microservice-transactions
+    container_name: microservice-transactions-2
     build:
       context: ./microservice-transactions
       dockerfile: Dockerfile
@@ -184,7 +208,7 @@ services:
 
   # Gateway Server - Instanța 2 (Open - Pentru Testare API)
   gatewayserver-open:
-    image: gatewayserver-open
+    image: gatewayserver
     container_name: gatewayserver-open
     ports:
       - "8073:8072" # Mapăm portul 8073 al PC-ului la 8072 al containerului
@@ -192,7 +216,7 @@ services:
       context: ./gatewayserver
       dockerfile: Dockerfile
     environment:
-      - SPRING_PROFILES_ACTIVE=no-security # Profilul pe care îl vom crea mai târziu
+      - SPRING_PROFILES_ACTIVE=dev
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
     depends_on:
