@@ -28,7 +28,10 @@ spring:
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             #username attribute used to uniquely identify the user
             user-name-attribute: sub
-
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+          issuer-uri: https://accounts.google.com
   zipkin:
     base-url: http://localhost:9411 #http://zipkin:9411
   sleuth:
@@ -50,11 +53,9 @@ spring:
             - StripPrefix=1
 
         - id: transaction-service
-          uri: lb://microservice-transactions
+          uri: lb://MICROSERVICE-TRANSACTIONS
           predicates:
-            - Path=/microservice-transactions/**
-          filters:
-            - StripPrefix=1
+            - Path=/api/transactions/**
 
         - id: ai-service
           uri: lb://microservice-ai

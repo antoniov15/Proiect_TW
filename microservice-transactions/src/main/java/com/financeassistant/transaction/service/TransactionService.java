@@ -1,7 +1,10 @@
 package com.financeassistant.transaction.service;
 
+import com.financeassistant.transaction.client.AIFeignClient;
+import com.financeassistant.transaction.client.AccountFeignClient;
 import com.financeassistant.transaction.domain.TransactionDomainService;
 import com.financeassistant.transaction.dto.CreateTransactionDTO;
+import com.financeassistant.transaction.dto.SmartTransactionDTO;
 import com.financeassistant.transaction.dto.TransactionViewDTO;
 import com.financeassistant.transaction.dto.UpdateTransactionDTO;
 import com.financeassistant.transaction.entity.Category;
@@ -13,6 +16,8 @@ import com.financeassistant.transaction.repository.TransactionRepository;
 import com.financeassistant.transaction.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,14 +36,63 @@ public class TransactionService {
     private final CategoryRepository categoryRepository;
     private final TransactionMapper transactionMapper;
     private final TransactionDomainService transactionDomainService;
+    private final AccountFeignClient accountClient;
+    private final AIFeignClient aiClient;
 
     @Autowired
-    public TransactionService(TransactionRepository transactionRepository, CategoryRepository categoryRepository, TransactionMapper transactionMapper) {
+    public TransactionService(TransactionRepository transactionRepository,
+                              CategoryRepository categoryRepository,
+                              TransactionMapper transactionMapper,
+                              AccountFeignClient accountClient,
+                              AIFeignClient aiClient) {
 
         this.transactionRepository = transactionRepository;
         this.categoryRepository = categoryRepository;
         this.transactionMapper = transactionMapper;
         this.transactionDomainService = new TransactionDomainService();
+        this.accountClient = accountClient;
+        this.aiClient = aiClient;
+    }
+
+    public String checkUserSync() {
+        String email = getCurrentUserEmail();
+        Long userId = accountClient.getUserIdByEmail(email);
+        return "Sync Successful! Email: " + email + " is mapped to ID: " + userId;
+    }
+
+    @Transactional
+    public TransactionViewDTO createSmartTransaction(SmartTransactionDTO dto) {
+
+        String email = getCurrentUserEmail();
+        Long userId = accountClient.getUserIdByEmail(email);
+
+        String predictedCategoryName = aiClient.predictCategory(dto.getDescription());
+
+        String cleanName = predictedCategoryName.strip();
+        Category category = categoryRepository.findByName(cleanName);
+
+        if (category == null) {
+            throw new ResourceNotFoundException("Category predicted by AI not found in DB: " + cleanName);
+        }
+
+        Transaction transaction = new Transaction();
+        transaction.setUserId(userId);
+        transaction.setAmount(BigDecimal.valueOf(dto.getAmount()));
+        transaction.setDescription(dto.getDescription());
+        transaction.setDate(LocalDate.now());
+        transaction.setType(category.getType());
+        transaction.setCategory(category);
+
+        Transaction saved = transactionRepository.save(transaction);
+        return transactionMapper.toViewDTO(saved);
+    }
+
+    private String getCurrentUserEmail() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof JwtAuthenticationToken jwtToken) {
+            return (String) jwtToken.getTokenAttributes().get("email");
+        }
+        throw new IllegalStateException("User not authenticated with JWT");
     }
 
     @Transactional

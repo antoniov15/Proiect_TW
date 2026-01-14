@@ -134,4 +134,10 @@ public class AccountController {
         AccountResponseDTO updatedAccount = accountService.checkAndPromoteToVip(id);
         return ResponseEntity.ok(updatedAccount);
     }
+
+    @GetMapping("/lookup")
+    public ResponseEntity<Long> getUserIdByEmail(@RequestParam("email") String email) {
+        Long userId = accountService.syncUserByEmail(email);
+        return ResponseEntity.ok(userId);
+    }
 }
