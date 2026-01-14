@@ -13,11 +13,37 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+import com.example.microservice_ai.domain.exception.ChatNotFoundException;
+import com.example.microservice_ai.domain.exception.MessageNotFoundException;
 import com.example.microservice_ai.dto.ErrorDTO;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(ChatNotFoundException.class)
+    public ResponseEntity<ErrorDTO> handleChatNotFoundException(ChatNotFoundException ex, WebRequest request) {
+        logger.warn("Chat not found: {}", ex.getMessage());
+        ErrorDTO error = new ErrorDTO(
+                request.getDescription(false),
+                HttpStatus.NOT_FOUND,
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(MessageNotFoundException.class)
+    public ResponseEntity<ErrorDTO> handleMessageNotFoundException(MessageNotFoundException ex, WebRequest request) {
+        logger.warn("Message not found: {}", ex.getMessage());
+        ErrorDTO error = new ErrorDTO(
+                request.getDescription(false),
+                HttpStatus.NOT_FOUND,
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
 
     @ExceptionHandler(AccountNotFoundException.class)
     public ResponseEntity<ErrorDTO> handleAccountNotFoundException(AccountNotFoundException ex, WebRequest request) {
@@ -29,6 +55,18 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(ServiceException.class)
+    public ResponseEntity<ErrorDTO> handleServiceException(ServiceException ex, WebRequest request) {
+        logger.error("Service error: {}", ex.getMessage());
+        ErrorDTO error = new ErrorDTO(
+                request.getDescription(false),
+                HttpStatus.SERVICE_UNAVAILABLE,
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
