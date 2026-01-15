@@ -60,6 +60,14 @@ public class ChatController {
 	}
 
 	@ApiResponses(value = {
+	@ApiResponse(responseCode = "200", description = "Hello")
+	})
+	@GetMapping("/hello")
+	public ResponseEntity<String> hello() {
+		return ResponseEntity.ok("Hello");
+	}
+
+	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Chat retrieved", content = @Content(schema = @Schema(implementation = ChatDTO.class))),
 		@ApiResponse(responseCode = "404", description = "Chat not found", content = @Content)
 	})

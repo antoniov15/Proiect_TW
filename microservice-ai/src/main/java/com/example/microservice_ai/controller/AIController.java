@@ -23,10 +23,12 @@ import com.example.microservice_ai.dto.CreateTransactionWithAIRequestDTO;
 import com.example.microservice_ai.dto.CreateTransactionWithAIResponseDTO;
 import com.example.microservice_ai.dto.external.CreateTransactionRequestDTO;
 import com.example.microservice_ai.dto.external.TransactionResponseDTO;
+import com.example.microservice_ai.entity.Examen;
 import com.example.microservice_ai.entity.Message;
 import com.example.microservice_ai.enums.Role;
 import com.example.microservice_ai.exception.AccountNotFoundException;
 import com.example.microservice_ai.exception.ServiceException;
+import com.example.microservice_ai.repository.ExamenRepository;
 import com.example.microservice_ai.service.CategorizationService;
 import com.example.microservice_ai.service.IAIService;
 
@@ -43,6 +45,7 @@ public class AIController {
     private static final Logger logger = LoggerFactory.getLogger(AIController.class);
 
     private final CategorizationService categorizationService;
+    private final ExamenRepository examenRepository;
 
     @Autowired
     private IAIService aiService;
@@ -53,14 +56,49 @@ public class AIController {
     @Autowired
     private TransactionClient transactionClient;
 
-    public AIController(CategorizationService categorizationService) {
+    public AIController(CategorizationService categorizationService, ExamenRepository examenRepository) {
         this.categorizationService = categorizationService;
+        this.examenRepository = examenRepository;
     }
 
     @PostMapping("/categorize")
     public ResponseEntity<String> categorizeTransaction(@RequestBody String description) {
         String category = categorizationService.categorize(description);
         return ResponseEntity.ok(category);
+    }
+
+    @Operation(summary = "Add a number to the Examen table",
+            description = "Adds a number (0-100) to the Examen table")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Number added successfully"),
+        @ApiResponse(responseCode = "400", description = "Number out of range (must be 0-100)", content = @Content)
+    })
+    @PostMapping("/examen")
+    public ResponseEntity<Examen> addExamenNumber(@RequestParam("number") Integer number) {
+        logger.info("Received request to add number {} to Examen table", number);
+        
+        if (number == null || number < 0 || number > 100) {
+            throw new IllegalArgumentException("Number must be in range 0-100");
+        }
+        
+        Examen examen = new Examen(number);
+        Examen saved = examenRepository.save(examen);
+        logger.info("Number {} saved to Examen table with id {}", number, saved.getId());
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+
+    @Operation(summary = "Get all numbers from the Examen table",
+            description = "Retrieves all entries from the Examen table")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "List of all Examen entries")
+    })
+    @GetMapping("/examen")
+    public ResponseEntity<List<Examen>> getAllExamenNumbers() {
+        logger.info("Retrieving all entries from Examen table");
+        List<Examen> examens = examenRepository.findAll();
+        logger.info("Found {} entries in Examen table", examens.size());
+        return ResponseEntity.ok(examens);
     }
 
     @ApiResponses(value = {

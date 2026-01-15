@@ -190,6 +190,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://aidb:5432/finance_app_db?currentSchema=ai_schema
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_PROFILES_ACTIVE=dev
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
       - AI_API_KEY=${AI_API_KEY}
@@ -264,6 +265,39 @@ services:
     extends:
       file: common-config.yml
       service: microservice-base-config
+
+  # ==================== DEV PROFILE SERVICES (Hot Reload) ====================
+
+  # Gateway Server - Development with Hot Reload
+  gatewayserver-dev:
+    image: gatewayserver-dev
+    container_name: gatewayserver-dev
+    ports:
+      - "8074:8072"
+    build:
+      context: ./gatewayserver
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./gatewayserver/src:/app/src:z
+      - ./gatewayserver/pom.xml:/app/pom.xml:z
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
+    depends_on:
+      microservice-account:
+        condition: service_started
+      microservice-transactions:
+        condition: service_started
+      eurekaserver:
+        condition: service_healthy
+      zipkin:
+        condition: service_started
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
+    profiles:
+      - dev
 
 networks:
   finance-network:

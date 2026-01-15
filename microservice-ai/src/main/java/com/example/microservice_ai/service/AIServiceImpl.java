@@ -11,16 +11,40 @@ import com.example.microservice_ai.domain.model.MessageModel;
 import com.example.microservice_ai.domain.service.AiDomainService;
 import com.example.microservice_ai.entity.Message;
 
+/**
+ * Implementare a serviciului de inteligență artificială.
+ * Gestionează comunicarea cu serviciul AI pentru generarea răspunsurilor.
+ * 
+ * @author Daniel Ignat
+ * @version 1.0
+ * @since 2026-01-15
+ * @see IAIService
+ * @see AiDomainService
+ */
 @Service
 public class AIServiceImpl implements IAIService {
     private static final Logger logger = LoggerFactory.getLogger(AIServiceImpl.class);
 
     private final AiDomainService aiDomainService;
 
+    /**
+     * Constructor pentru AIServiceImpl.
+     * 
+     * @param aiDomainService serviciul domain pentru AI
+     * @author Daniel Ignat
+     */
     public AIServiceImpl(AiDomainService aiDomainService) {
         this.aiDomainService = aiDomainService;
     }
 
+    /**
+     * {@inheritDoc}
+     * Procesează un singur mesaj și returnează răspunsul AI.
+     * 
+     * @param message mesajul de procesat
+     * @return răspunsul generat de AI
+     * @author Daniel Ignat
+     */
     @Override
     public String getAIResponseForMessage(Message message) {
         logger.info("Processing AI request for single message");
@@ -32,6 +56,15 @@ public class AIServiceImpl implements IAIService {
         return response;
     }
 
+    /**
+     * {@inheritDoc}
+     * Procesează o conversație completă și returnează răspunsul AI.
+     * Convertește mesajele în modele și le trimite către serviciul domain.
+     * 
+     * @param messages lista de mesaje din conversație
+     * @return răspunsul generat de AI pentru întreaga conversație
+     * @author Daniel Ignat
+     */
     @Override
     public String getAIResponseForConversation(List<Message> messages) {
         logger.info("Processing AI request for conversation with {} messages", messages.size());

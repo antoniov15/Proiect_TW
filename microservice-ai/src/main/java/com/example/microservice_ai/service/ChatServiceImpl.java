@@ -17,16 +17,40 @@ import com.example.microservice_ai.dto.MessageCreateDTO;
 import com.example.microservice_ai.dto.MessageDTO;
 import com.example.microservice_ai.enums.Role;
 
+/**
+ * Implementare a serviciului de gestionare a chat-urilor.
+ * Oferă funcționalități complete CRUD pentru chat-uri și mesaje.
+ * 
+ * @author Daniel Ignat
+ * @version 1.0
+ * @since 2026-01-15
+ * @see IChatService
+ * @see ChatDomainService
+ */
 @Service
 public class ChatServiceImpl implements IChatService {
     private static final Logger logger = LoggerFactory.getLogger(ChatServiceImpl.class);
 
     private final ChatDomainService chatDomainService;
 
+    /**
+     * Constructor pentru ChatServiceImpl.
+     * 
+     * @param chatDomainService serviciul domain pentru operații cu chat-uri
+     * @author Daniel Ignat
+     */
     public ChatServiceImpl(ChatDomainService chatDomainService) {
         this.chatDomainService = chatDomainService;
     }
 
+    /**
+     * {@inheritDoc}
+     * Creează un chat nou și adaugă mesajele inițiale dacă sunt furnizate.
+     * 
+     * @param chatCreateDTO obiectul DTO cu datele chat-ului
+     * @return chat-ul creat împreună cu mesajele sale
+     * @author Daniel Ignat
+     */
     @Override
     @Transactional
     public ChatDTO createChat(ChatCreateDTO chatCreateDTO) {
@@ -45,6 +69,14 @@ public class ChatServiceImpl implements IChatService {
         return toChatDTO(chat);
     }
 
+    /**
+     * {@inheritDoc}
+     * Obține un chat după identificatorul său unic.
+     * 
+     * @param chatId identificatorul unic al chat-ului
+     * @return chat-ul găsit ca ChatDTO
+     * @author Daniel Ignat
+     */
     @Override
     public ChatDTO getChat(Long chatId) {
         logger.debug("Fetching chat with id: {}", chatId);
@@ -52,6 +84,13 @@ public class ChatServiceImpl implements IChatService {
         return toChatDTO(chat);
     }
 
+    /**
+     * {@inheritDoc}
+     * Listează toate chat-urile disponibile cu mesajele lor.
+     * 
+     * @return lista completă de chat-uri
+     * @author Daniel Ignat
+     */
     @Override
     public List<ChatDTO> listChats() {
         logger.debug("Listing all chats");
@@ -63,6 +102,15 @@ public class ChatServiceImpl implements IChatService {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * {@inheritDoc}
+     * Actualizează titlul unui chat existent.
+     * 
+     * @param chatId identificatorul chat-ului de actualizat
+     * @param chatCreateDTO datele noi pentru chat
+     * @return chat-ul actualizat ca ChatDTO
+     * @author Daniel Ignat
+     */
     @Override
     @Transactional
     public ChatDTO updateChat(Long chatId, ChatCreateDTO chatCreateDTO) {
@@ -72,6 +120,13 @@ public class ChatServiceImpl implements IChatService {
         return toChatDTO(chatDomainService.getChatById(chatId));
     }
 
+    /**
+     * {@inheritDoc}
+     * Șterge un chat și toate mesajele asociate.
+     * 
+     * @param chatId identificatorul chat-ului de șters
+     * @author Daniel Ignat
+     */
     @Override
     @Transactional
     public void deleteChat(Long chatId) {
@@ -80,6 +135,15 @@ public class ChatServiceImpl implements IChatService {
         logger.info("Chat deleted successfully: {}", chatId);
     }
 
+    /**
+     * {@inheritDoc}
+     * Adaugă un mesaj nou la un chat existent.
+     * 
+     * @param chatId identificatorul chat-ului
+     * @param messageCreateDTO datele mesajului de adăugat
+     * @return mesajul adăugat ca MessageDTO
+     * @author Daniel Ignat
+     */
     @Override
     @Transactional
     public MessageDTO addMessage(Long chatId, MessageCreateDTO messageCreateDTO) {
@@ -90,6 +154,14 @@ public class ChatServiceImpl implements IChatService {
         return toMessageDTO(saved);
     }
 
+    /**
+     * {@inheritDoc}
+     * Obține toate mesajele dintr-un chat specificat.
+     * 
+     * @param chatId identificatorul chat-ului
+     * @return lista de mesaje din chat
+     * @author Daniel Ignat
+     */
     @Override
     public List<MessageDTO> getMessagesForChat(Long chatId) {
         logger.debug("Fetching messages for chat: {}", chatId);
@@ -98,6 +170,13 @@ public class ChatServiceImpl implements IChatService {
         return messages.stream().map(this::toMessageDTO).collect(Collectors.toList());
     }
 
+    /**
+     * Convertește un ChatAggregate în ChatDTO.
+     * 
+     * @param chat obiectul agregat de convertit
+     * @return obiectul DTO rezultat
+     * @author Daniel Ignat
+     */
     private ChatDTO toChatDTO(ChatAggregate chat) {
         ChatDTO dto = new ChatDTO();
         dto.setId(chat.getId());
@@ -107,6 +186,13 @@ public class ChatServiceImpl implements IChatService {
         return dto;
     }
 
+    /**
+     * Convertește un MessageModel în MessageDTO.
+     * 
+     * @param msg modelul mesajului de convertit
+     * @return obiectul DTO rezultat
+     * @author Daniel Ignat
+     */
     private MessageDTO toMessageDTO(MessageModel msg) {
         MessageDTO dto = new MessageDTO();
         dto.setId(msg.getId());
@@ -116,6 +202,14 @@ public class ChatServiceImpl implements IChatService {
         return dto;
     }
 
+    /**
+     * Convertește un MessageCreateDTO în MessageModel.
+     * Setează rolul implicit la USER dacă rolul furnizat este invalid.
+     * 
+     * @param dto obiectul DTO de convertit
+     * @return modelul mesajului rezultat
+     * @author Daniel Ignat
+     */
     private MessageModel toMessageModel(MessageCreateDTO dto) {
         Role role = Role.USER;
         try {

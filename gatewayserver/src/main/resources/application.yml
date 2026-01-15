@@ -40,6 +40,13 @@ spring:
 
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
       discovery:
         locator:
           enabled: true
@@ -63,7 +70,9 @@ spring:
         - id: transaction-service
           uri: lb://MICROSERVICE-TRANSACTIONS
           predicates:
-            - Path=/api/transactions/**
+            - Path=/microservice-transactions/**
+          filters:
+            - StripPrefix=1
 
         # OpenAPI docs route for Transactions Service
         - id: transactions-api-docs
