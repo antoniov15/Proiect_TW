@@ -1,0 +1,12 @@
+FROM maven:3.9.6-eclipse-temurin-21
+WORKDIR /app
+
+# Copy pom.xml and download dependencies (cached layer)
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Source code will be mounted as a volume
+EXPOSE 8080
+
+# Run with spring-boot:run for hot reload support
+ENTRYPOINT ["mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-Dspring.devtools.restart.enabled=true"]

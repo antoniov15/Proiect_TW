@@ -151,6 +151,39 @@ services:
       file: common-config.yml
       service: microservice-base-config
 
+  # Microservice AI - Development with Hot Reload
+  microservice-ai-dev:
+    image: microservice-ai-dev
+    container_name: microservice-ai-dev
+    build:
+      context: ./microservice-ai
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./microservice-ai/src:/app/src:z
+      - ./microservice-ai/pom.xml:/app/pom.xml:z
+    environment:
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=https://accounts.google.com
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://aidb:5432/finance_app_db?currentSchema=ai_schema
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8070/eureka/
+      - AI_API_KEY=${AI_API_KEY}
+      - AI_API_URL=${AI_API_URL:-https://api.openai.com}
+      - AI_MODEL=${AI_MODEL:-gpt-4o-mini}
+    depends_on:
+      aidb:
+        condition: service_started
+      eurekaserver:
+        condition: service_healthy
+      zipkin:
+        condition: service_started
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
+    profiles:
+      - dev
+
   # Gateway Server - Instanța 1 (Securizat - Default)
   gatewayserver:
     image: gatewayserver
