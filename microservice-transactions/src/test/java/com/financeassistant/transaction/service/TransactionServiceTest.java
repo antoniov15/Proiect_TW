@@ -1,8 +1,8 @@
 package com.financeassistant.transaction.service;
 
-import com.financeassistant.transaction.dto.CreateTransactionDTO;
-import com.financeassistant.transaction.dto.TransactionViewDTO;
-import com.financeassistant.transaction.dto.UpdateTransactionDTO;
+import com.financeassistant.transaction.client.AIFeignClient;
+import com.financeassistant.transaction.client.AccountFeignClient;
+import com.financeassistant.transaction.dto.*;
 import com.financeassistant.transaction.entity.Category;
 import com.financeassistant.transaction.entity.Transaction;
 import com.financeassistant.transaction.entity.TransactionType;
@@ -15,9 +15,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,9 +43,127 @@ class TransactionServiceTest {
     @Mock
     private TransactionMapper transactionMapper;
 
+    @Mock private AccountFeignClient accountFeignClient;
+    @Mock private AIFeignClient aiFeignClient;
+    @Mock private SecurityContext securityContext;
+    @Mock private JwtAuthenticationToken jwtAuthenticationToken;
+
     @InjectMocks
     private TransactionService transactionService;
 
+
+    @Test
+    void createSmartTransaction_ShouldSucceed() {
+        when(securityContext.getAuthentication()).thenReturn(jwtAuthenticationToken);
+        when(jwtAuthenticationToken.getTokenAttributes()).thenReturn(Map.of("email", "test@gmail.com"));
+        SecurityContextHolder.setContext(securityContext);
+
+        SmartTransactionDTO dto = new SmartTransactionDTO();
+        dto.setAmount(100.0);
+        dto.setDescription("KFC Wings");
+
+        Category foodCategory = new Category();
+        foodCategory.setName("Food");
+        foodCategory.setType(TransactionType.EXPENSE);
+
+        Transaction savedTransaction = new Transaction();
+        savedTransaction.setId(1L);
+
+        TransactionViewDTO viewDTO = new TransactionViewDTO();
+        viewDTO.setId(1L);
+
+        when(accountFeignClient.getUserIdByEmail("test@gmail.com")).thenReturn(10L);
+        when(aiFeignClient.predictCategory("KFC Wings")).thenReturn("Food");
+        when(categoryRepository.findByName("Food")).thenReturn(foodCategory);
+        when(transactionRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
+        when(transactionMapper.toViewDTO(savedTransaction)).thenReturn(viewDTO);
+
+        TransactionViewDTO result = transactionService.createSmartTransaction(dto);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        verify(transactionRepository).save(any(Transaction.class));
+        verify(aiFeignClient).predictCategory("KFC Wings");
+    }
+
+    @Test
+    void getGlobalAdminReport_ShouldHandlePartialFailures() {
+        Transaction t1 = new Transaction(); t1.setUserId(1L); t1.setAmount(BigDecimal.valueOf(100));
+        Transaction t2 = new Transaction(); t2.setUserId(2L); t2.setAmount(BigDecimal.valueOf(50));
+
+        when(transactionRepository.findAll()).thenReturn(Arrays.asList(t1, t2));
+
+        AccountResponseDTO acc1 = new AccountResponseDTO(); acc1.setName("User1"); acc1.setEmail("u1@test.com");
+        when(accountFeignClient.getAccountById(1L)).thenReturn(acc1);
+
+        when(accountFeignClient.getAccountById(2L)).thenThrow(new RuntimeException("Service Down"));
+
+        List<String> report = transactionService.getGlobalAdminReport();
+
+        assertEquals(2, report.size());
+        assertTrue(report.stream().anyMatch(line -> line.contains("User1") && line.contains("100.00 RON")));
+        assertTrue(report.stream().anyMatch(line -> line.contains("Account Info Unavailable")));
+    }
+
+    @Test
+    void checkUserSync_ShouldReturnSuccessMessage() {
+        setupSecurityContext("test@gmail.com");
+        when(accountFeignClient.getUserIdByEmail("test@gmail.com")).thenReturn(5L);
+
+        String result = transactionService.checkUserSync();
+
+        assertTrue(result.contains("Sync Successful"));
+        assertTrue(result.contains("ID: 5"));
+    }
+
+    @Test
+    void createSmartTransaction_WhenCategoryNotFound_ShouldThrowException() {
+        setupSecurityContext("test@gmail.com");
+        when(accountFeignClient.getUserIdByEmail("test@gmail.com")).thenReturn(1L);
+
+        when(aiFeignClient.predictCategory("Rocket fuel")).thenReturn("Spaceship");
+        when(categoryRepository.findByName("Spaceship")).thenReturn(null);
+
+        SmartTransactionDTO dto = new SmartTransactionDTO("Rocket fuel", 500.0);
+
+        assertThrows(ResourceNotFoundException.class, () ->
+                transactionService.createSmartTransaction(dto)
+        );
+    }
+
+    @Test
+    void getTransactionsByUserId_ShouldFilterAndSort() {
+        Transaction t1 = new Transaction(); t1.setAmount(BigDecimal.valueOf(10)); t1.setDate(LocalDate.now()); t1.setType(TransactionType.EXPENSE);
+        Transaction t2 = new Transaction(); t2.setAmount(BigDecimal.valueOf(20)); t2.setDate(LocalDate.now().minusDays(1)); t2.setType(TransactionType.EXPENSE);
+
+        when(transactionRepository.findAllByUserId(1L)).thenReturn(Arrays.asList(t1, t2));
+        when(transactionMapper.toViewDTO(any())).thenReturn(new TransactionViewDTO());
+
+        transactionService.getTransactionsByUserId(1L, TransactionType.EXPENSE, "amount", "desc");
+
+        transactionService.getTransactionsByUserId(1L, null, "date", "asc");
+
+        verify(transactionRepository, times(2)).findAllByUserId(1L);
+    }
+
+    @Test
+    void getSortedTransactions_ShouldSortByDefault() {
+        Transaction t1 = new Transaction(); t1.setDate(LocalDate.now());
+        Transaction t2 = new Transaction(); t2.setDate(LocalDate.now().minusDays(1));
+
+        when(transactionRepository.findAll()).thenReturn(Arrays.asList(t1, t2));
+        when(transactionMapper.toViewDTO(any())).thenReturn(new TransactionViewDTO());
+
+        transactionService.getSortedTransactions("unknown_field", "asc");
+
+        verify(transactionRepository).findAll();
+    }
+
+    private void setupSecurityContext(String email) {
+        when(securityContext.getAuthentication()).thenReturn(jwtAuthenticationToken);
+        when(jwtAuthenticationToken.getTokenAttributes()).thenReturn(Map.of("email", email));
+        SecurityContextHolder.setContext(securityContext);
+    }
 
     @Test
     void getMonthlyExpense_ValidInputs_ReturnsAmount() {
