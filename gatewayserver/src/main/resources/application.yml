@@ -28,7 +28,10 @@ spring:
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             #username attribute used to uniquely identify the user
             user-name-attribute: sub
-
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+          issuer-uri: https://accounts.google.com
   zipkin:
     base-url: http://localhost:9411 #http://zipkin:9411
   sleuth:
@@ -37,6 +40,13 @@ spring:
 
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
       discovery:
         locator:
           enabled: true
@@ -49,12 +59,28 @@ spring:
           filters:
             - StripPrefix=1
 
+        # OpenAPI docs route for Account Service
+        - id: account-api-docs
+          uri: lb://microservice-account
+          predicates:
+            - Path=/v3/api-docs/account
+          filters:
+            - RewritePath=/v3/api-docs/account, /v3/api-docs
+
         - id: transaction-service
-          uri: lb://microservice-transactions
+          uri: lb://MICROSERVICE-TRANSACTIONS
           predicates:
             - Path=/microservice-transactions/**
           filters:
             - StripPrefix=1
+
+        # OpenAPI docs route for Transactions Service
+        - id: transactions-api-docs
+          uri: lb://MICROSERVICE-TRANSACTIONS
+          predicates:
+            - Path=/v3/api-docs/transactions
+          filters:
+            - RewritePath=/v3/api-docs/transactions, /v3/api-docs
 
         - id: ai-service
           uri: lb://microservice-ai
@@ -62,6 +88,14 @@ spring:
             - Path=/microservice-ai/**
           filters:
             - StripPrefix=1
+
+        # OpenAPI docs route for AI Service
+        - id: ai-api-docs
+          uri: lb://microservice-ai
+          predicates:
+            - Path=/v3/api-docs/ai
+          filters:
+            - RewritePath=/v3/api-docs/ai, /v3/api-docs
 
 server:
   port: 8072
@@ -80,3 +114,18 @@ management:
     web:
       exposure:
         include: "*"
+
+# Springdoc OpenAPI Configuration - Aggregated Swagger UI
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    urls:
+      - name: Account Service
+        url: /v3/api-docs/account
+      - name: Transactions Service
+        url: /v3/api-docs/transactions
+      - name: AI Service
+        url: /v3/api-docs/ai

@@ -24,6 +24,7 @@ public class GoogleIdTokenRelayFilter implements GlobalFilter, Ordered {
                 .map(auth -> (OidcUser) auth.getPrincipal())
                 .map(oidcUser -> {
                     String idToken = oidcUser.getIdToken().getTokenValue();
+                    System.out.println(">>> TOKEN PENTRU POSTMAN: " + idToken);
                     return withBearerToken(exchange, idToken);
                 })
                 .defaultIfEmpty(exchange)

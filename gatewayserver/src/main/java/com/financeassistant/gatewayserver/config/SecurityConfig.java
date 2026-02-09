@@ -42,10 +42,9 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableWebFluxSecurity
 //@Profile("test")
-@Profile("!dev")
+@Profile("!dev & !no-security")
 public class SecurityConfig {
 
-    //TODO: set your GCP project ID
     private final String idProject = "finance-assistant-gateway";
 
     @Bean
@@ -55,6 +54,8 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/", "/index.html", "/login/**", "/oauth2/**", "/actuator/**").permitAll()
+                        // Swagger UI - centralized
+                        .pathMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**").permitAll()
 
                         .pathMatchers(HttpMethod.DELETE, "/microservice-transactions/**").hasRole("ADMIN")
                         .anyExchange().authenticated()
@@ -63,6 +64,7 @@ public class SecurityConfig {
                         .authenticationSuccessHandler(successHandler())
                 )
                 .oauth2Client(Customizer.withDefaults())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
     }
 

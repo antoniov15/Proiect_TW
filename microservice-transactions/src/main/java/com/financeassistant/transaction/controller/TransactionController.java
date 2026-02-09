@@ -1,6 +1,7 @@
 package com.financeassistant.transaction.controller;
 
 import com.financeassistant.transaction.dto.CreateTransactionDTO;
+import com.financeassistant.transaction.dto.SmartTransactionDTO;
 import com.financeassistant.transaction.dto.TransactionViewDTO;
 import com.financeassistant.transaction.dto.UpdateTransactionDTO;
 import com.financeassistant.transaction.entity.TransactionType;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +27,23 @@ public class TransactionController {
     @Autowired
     public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @GetMapping("/admin/global-summary")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<String>> getGlobalSummary() {
+        log.info("Admin accessing global summary report");
+        return ResponseEntity.ok(transactionService.getGlobalAdminReport());
+    }
+
+    @GetMapping("/sync-check")
+    public ResponseEntity<String> checkSync() {
+        return ResponseEntity.ok(transactionService.checkUserSync());
+    }
+
+    @PostMapping("/smart")
+    public ResponseEntity<TransactionViewDTO> createSmartTransaction(@RequestBody SmartTransactionDTO dto) {
+        return new ResponseEntity<>(transactionService.createSmartTransaction(dto), HttpStatus.CREATED);
     }
 
     @PostMapping

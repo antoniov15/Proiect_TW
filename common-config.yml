@@ -1,0 +1,8 @@
+services:
+  microservice-base-config:
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - finance-network

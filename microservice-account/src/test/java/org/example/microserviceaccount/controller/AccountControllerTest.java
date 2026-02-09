@@ -89,4 +89,120 @@ public class AccountControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    // --- LIST OPERATIONS ---
+    @Test
+    void getAllAccounts_ReturnsOk() throws Exception {
+        java.util.List<AccountResponseDTO> list = java.util.Collections.singletonList(new AccountResponseDTO());
+        when(accountService.getAllAccounts()).thenReturn(list);
+
+        mockMvc.perform(get("/api/v1/accounts"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    void searchAccountsByUsername_ReturnsOk() throws Exception {
+        String query = "test";
+        when(accountService.findAccountsByUsernameContaining(query))
+                .thenReturn(java.util.Collections.emptyList());
+
+        mockMvc.perform(get("/api/v1/accounts/search").param("username", query))
+                .andExpect(status().isOk());
+    }
+
+    // --- UPDATE & DELETE ---
+    @Test
+    void updateAccount_ReturnsOk() throws Exception {
+        Long id = 1L;
+        AccountCreateDTO updateDTO = new AccountCreateDTO();
+        updateDTO.setEmail("up@test.com");
+        updateDTO.setUserName("upUser");
+        // FIX: Parola trebuie să aibă minim 6 caractere pentru a trece de @Valid
+        updateDTO.setPassword("password123");
+
+        AccountResponseDTO responseDTO = new AccountResponseDTO();
+        responseDTO.setUserName("upUser");
+
+        when(accountService.updateAccount(eq(id), any(AccountCreateDTO.class))).thenReturn(responseDTO);
+
+        mockMvc.perform(put("/api/v1/accounts/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userName").value("upUser"));
+    }
+
+    @Test
+    void deleteAccount_ReturnsNoContent() throws Exception {
+        Long id = 1L;
+
+        mockMvc.perform(delete("/api/v1/accounts/{id}", id))
+                .andExpect(status().isNoContent()); // 204
+    }
+
+    // --- AUTH ENDPOINTS ---
+    @Test
+    void login_ReturnsOk() throws Exception {
+        org.example.microserviceaccount.dto.LoginRequestDTO loginDTO = new org.example.microserviceaccount.dto.LoginRequestDTO();
+        loginDTO.setLoginIdentifier("test@test.com");
+        loginDTO.setPassword("pass");
+
+        AccountResponseDTO responseDTO = new AccountResponseDTO();
+        responseDTO.setEmail("test@test.com");
+
+        when(accountService.login(any(org.example.microserviceaccount.dto.LoginRequestDTO.class)))
+                .thenReturn(responseDTO);
+
+        mockMvc.perform(post("/api/v1/accounts/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("test@test.com"));
+    }
+
+    @Test
+    void resetPassword_ReturnsOk() throws Exception {
+        org.example.microserviceaccount.dto.ResetPasswordDTO resetDTO = new org.example.microserviceaccount.dto.ResetPasswordDTO();
+        resetDTO.setEmail("test@test.com");
+        resetDTO.setNewPassword("newPass123");
+
+        when(accountService.resetPassword(eq("test@test.com"), eq("newPass123")))
+                .thenReturn(new AccountResponseDTO());
+
+        mockMvc.perform(post("/api/v1/accounts/reset-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(resetDTO)))
+                .andExpect(status().isOk());
+    }
+
+    // --- VIZA 3 ENDPOINTS ---
+    @Test
+    void getAccountSummary_ReturnsOk() throws Exception {
+        Long id = 1L;
+        org.example.microserviceaccount.dto.AccountSummaryDTO summary = new org.example.microserviceaccount.dto.AccountSummaryDTO();
+        summary.setAccountId(id);
+        summary.setTotalBalanceCalculated(100.0);
+
+        when(accountService.getAccountSummary(id)).thenReturn(summary);
+
+        mockMvc.perform(get("/api/v1/accounts/{id}/summary", id)
+                        .header("X-Trace-Id", "trace-123")
+                        .principal(new org.springframework.security.authentication.TestingAuthenticationToken("testUser", "ROLE_USER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalBalanceCalculated").value(100.0));
+    }
+
+    @Test
+    void promoteToVip_ReturnsOk() throws Exception {
+        Long id = 1L;
+        AccountResponseDTO response = new AccountResponseDTO();
+        response.setUserName("User (VIP)");
+
+        when(accountService.checkAndPromoteToVip(id)).thenReturn(response);
+
+        mockMvc.perform(put("/api/v1/accounts/{id}/promote-vip", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userName").value("User (VIP)"));
+    }
 }

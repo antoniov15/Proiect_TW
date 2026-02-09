@@ -2,6 +2,7 @@ package com.financeassistant.transaction.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeassistant.transaction.dto.CreateTransactionDTO;
+import com.financeassistant.transaction.dto.SmartTransactionDTO;
 import com.financeassistant.transaction.dto.TransactionViewDTO;
 import com.financeassistant.transaction.dto.UpdateTransactionDTO;
 import com.financeassistant.transaction.entity.TransactionType;
@@ -13,6 +14,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -38,6 +42,27 @@ class TransactionControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
+    void createSmartTransaction_ShouldReturnCreated() throws Exception {
+        SmartTransactionDTO input = new SmartTransactionDTO();
+        input.setAmount(50.0);
+        input.setDescription("Taxi");
+
+        TransactionViewDTO output = new TransactionViewDTO();
+        output.setId(1L);
+        output.setAmount(BigDecimal.valueOf(50.0));
+
+        when(transactionService.createSmartTransaction(any(SmartTransactionDTO.class))).thenReturn(output);
+
+        mockMvc.perform(post("/api/transactions/smart")
+                        .with(jwt().jwt(builder -> builder.claim("email", "test@test.com")))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1));
+    }
+
+    @Test
     void createTransaction_ValidInput_ReturnsCreated() throws Exception {
 
         CreateTransactionDTO inputDto = new CreateTransactionDTO(
@@ -53,7 +78,8 @@ class TransactionControllerTest {
 
         mockMvc.perform(post("/api/transactions")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(inputDto)))
+                    .content(objectMapper.writeValueAsString(inputDto))
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", "my_test_user"))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(outputDto.getId()))
                 .andExpect(jsonPath("$.amount").value(outputDto.getAmount()));
@@ -68,7 +94,8 @@ class TransactionControllerTest {
 
         mockMvc.perform(post("/api/transactions")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(invalidDto)))
+                    .content(objectMapper.writeValueAsString(invalidDto))
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", "my_test_user"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.amount").exists());
     }
@@ -82,7 +109,8 @@ class TransactionControllerTest {
 
         mockMvc.perform(post("/api/transactions")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidDto)))
+                        .content(objectMapper.writeValueAsString(invalidDto))
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", "my_test_user"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.date").exists());
     }
@@ -96,7 +124,8 @@ class TransactionControllerTest {
 
         when(transactionService.getTransactionById(1L)).thenReturn(dto);
 
-        mockMvc.perform(get("/api/transactions/1"))
+        mockMvc.perform(get("/api/transactions/1")
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", "my_test_user"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.amount").value(500.00));
@@ -108,7 +137,8 @@ class TransactionControllerTest {
         when(transactionService.getTransactionById(99L))
                 .thenThrow(new ResourceNotFoundException("Not Found"));
 
-        mockMvc.perform(get("/api/transactions/99"))
+        mockMvc.perform(get("/api/transactions/99")
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", "my_test_user"))))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Not Found"));
     }
@@ -124,7 +154,8 @@ class TransactionControllerTest {
         when(transactionService.getTransactionsByUserId(eq(1L), any(), any(), any()))
                 .thenReturn(List.of(t1, t2));
 
-        mockMvc.perform(get("/api/transactions/user/1"))
+        mockMvc.perform(get("/api/transactions/user/1")
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", "my_test_user"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1L));
@@ -147,7 +178,8 @@ class TransactionControllerTest {
 
         mockMvc.perform(put("/api/transactions/{id}", id)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(inputDto)))
+                    .content(objectMapper.writeValueAsString(inputDto))
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", "my_test_user"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.amount").value(200.00))
                 .andExpect(jsonPath("$.description").value("Updated Transaction"));
@@ -166,7 +198,8 @@ class TransactionControllerTest {
 
         mockMvc.perform(put("/api/transactions/{id}", id)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(inputDto)))
+                    .content(objectMapper.writeValueAsString(inputDto))
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", "my_test_user"))))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Not Found"));
     }
@@ -176,7 +209,8 @@ class TransactionControllerTest {
 
         Long id = 1L;
 
-        mockMvc.perform(delete("/api/transactions/{id}", id))
+        mockMvc.perform(delete("/api/transactions/{id}", id)
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", "my_test_user"))))
                 .andExpect(status().isNoContent());
     }
 
@@ -188,7 +222,8 @@ class TransactionControllerTest {
         doThrow(new ResourceNotFoundException("Not Found"))
                 .when(transactionService).deleteTransaction(id);
 
-        mockMvc.perform(delete("/api/transactions/{id}", id))
+        mockMvc.perform(delete("/api/transactions/{id}", id)
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", "my_test_user"))))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Not Found"));
     }
@@ -203,7 +238,8 @@ class TransactionControllerTest {
                 .thenReturn(List.of(t1));
 
         mockMvc.perform(get("/api/transactions/filter")
-                    .param("type", "INCOME"))
+                    .param("type", "INCOME")
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", "my_test_user"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1));
     }
@@ -221,7 +257,8 @@ class TransactionControllerTest {
 
         mockMvc.perform(get("/api/transactions/sort")
                         .param("sortBy", "amount")
-                        .param("order", "asc"))
+                        .param("order", "asc")
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", "my_test_user"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
     }
