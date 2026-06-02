@@ -3,8 +3,6 @@ package org.example.microserviceaccount.config;
 import org.example.microserviceaccount.entity.Account;
 import org.example.microserviceaccount.repository.AccountRepository;
 import org.springframework.http.HttpMethod;
-import org.example.microserviceaccount.entity.Account;
-import org.example.microserviceaccount.repository.AccountRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
