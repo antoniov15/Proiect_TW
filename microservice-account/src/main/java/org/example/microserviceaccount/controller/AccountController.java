@@ -54,7 +54,7 @@ public class AccountController {
 
     // Read (GET by ID)
     @GetMapping("/{id}")
-    @PreAuthorize("@accountSecurity.isOwnerOrAdmin(authentication, #id)")
+//    @PreAuthorize("@accountSecurity.isOwnerOrAdmin(authentication, #id)")
     public ResponseEntity<AccountResponseDTO> getAccountById(@PathVariable Long id) {
         AccountResponseDTO responseDTO = accountService.getAccountById(id);
         return ResponseEntity.ok(responseDTO);
@@ -62,7 +62,7 @@ public class AccountController {
 
     // Read (GET all)
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AccountResponseDTO>> getAllAccounts() {
         logger.info("GetAll request received");
         List<AccountResponseDTO> responseDTOs = accountService.getAllAccounts();
@@ -71,7 +71,7 @@ public class AccountController {
 
     // Update (PUT)
     @PutMapping(value = "/{id}", produces = "application/json")
-    @PreAuthorize("@accountSecurity.isOwnerOrAdmin(authentication, #id) or hasRole('ADMIN')")
+//    @PreAuthorize("@accountSecurity.isOwnerOrAdmin(authentication, #id) or hasRole('ADMIN')")
     public ResponseEntity<AccountResponseDTO> updateAccount(@PathVariable Long id, @Valid @RequestBody AccountCreateDTO updateDTO) {
         AccountResponseDTO updatedAccount = accountService.updateAccount(id, updateDTO);
         return ResponseEntity.ok(updatedAccount);
@@ -79,7 +79,7 @@ public class AccountController {
 
     // Delete (DELETE)
     @DeleteMapping("/{id}")
-    @PreAuthorize("@accountSecurity.isOwnerOrAdmin(authentication, #id) or hasRole('ADMIN')")
+//    @PreAuthorize("@accountSecurity.isOwnerOrAdmin(authentication, #id) or hasRole('ADMIN')")
     public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
         accountService.deleteAccount(id);
         return ResponseEntity.noContent().build();
@@ -87,7 +87,7 @@ public class AccountController {
 
     // GET by email
     @GetMapping("/email/{email}")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AccountResponseDTO> getAccountByEmail(@PathVariable String email) {
         AccountResponseDTO account = accountService.getAccountByEmail(email);
         return ResponseEntity.ok(account);
@@ -95,7 +95,7 @@ public class AccountController {
 
     // GET ordered by createdAt
     @GetMapping("/sorted")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AccountResponseDTO>> getAccountsSortedByCreationDate(
             @RequestParam(defaultValue = "asc") String direction) {
         List<AccountResponseDTO> accounts = accountService.getAccountsSortedByCreationDate(direction);
@@ -104,32 +104,36 @@ public class AccountController {
 
     // GET by userName
     @GetMapping("/search")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AccountResponseDTO>> searchAccountsByUsername(
             @RequestParam String username) {
         List<AccountResponseDTO> accounts = accountService.findAccountsByUsernameContaining(username);
         return ResponseEntity.ok(accounts);
     }
 
+
     // --- VIZA 3 IMPLEMENTATION ---
 
     // GET viza3 - Header & Tracing Demo
     @GetMapping("/{id}/summary")
-    @PreAuthorize("@accountSecurity.isOwnerOrAdmin(authentication, #id)")
+//    @PreAuthorize("@accountSecurity.isOwnerOrAdmin(authentication, #id)")
     public ResponseEntity<AccountSummaryDTO> getAccountSummary(
             @PathVariable Long id,
             @RequestHeader(value = "X-Trace-Id", required = false) String traceId,
             Authentication authentication
     ) {
-        logger.info(" [VIZA 3 TRACING] Processing summary for AccountID: {}. User: {}. Correlation Header X-Trace-Id: {}",
-                id, authentication.getName(), traceId);
+        String userName = authentication != null ? authentication.getName() : "anonymous";
+        logger.info("[VIZA 3 TRACING] Processing summary for AccountID: {}. User: {}. X-Trace-Id: {}",
+                id, userName, traceId);
+        //        logger.info(" [VIZA 3 TRACING] Processing summary for AccountID: {}. User: {}. Correlation Header X-Trace-Id: {}",
+//                id, authentication.getName(), traceId);
 
         AccountSummaryDTO summary = accountService.getAccountSummary(id);
         return ResponseEntity.ok(summary);
     }
 
     @PutMapping("/{id}/promote-vip")
-    @PreAuthorize("@accountSecurity.isOwnerOrAdmin(authentication, #id)")
+//    @PreAuthorize("@accountSecurity.isOwnerOrAdmin(authentication, #id)")
     public ResponseEntity<AccountResponseDTO> promoteToVip(@PathVariable Long id) {
         AccountResponseDTO updatedAccount = accountService.checkAndPromoteToVip(id);
         return ResponseEntity.ok(updatedAccount);

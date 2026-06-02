@@ -2,7 +2,7 @@ package org.example.microserviceaccount.config;
 
 import org.example.microserviceaccount.entity.Account;
 import org.example.microserviceaccount.repository.AccountRepository;
-
+import org.springframework.http.HttpMethod;
 import org.example.microserviceaccount.entity.Account;
 import org.example.microserviceaccount.repository.AccountRepository;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+//@EnableMethodSecurity
 public class SecurityConfig {
 //    private static final List<String> ADMIN_EMAILS = List.of(
 //            "laurentiu@student.unitbv.ro",
@@ -44,20 +44,32 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(csrf -> csrf.disable())
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authorizeHttpRequests(authz -> authz
+//                        .requestMatchers(HttpMethod.POST, "/api/v1/accounts").permitAll()
+//                        .requestMatchers("/api/v1/accounts/login", "/api/v1/accounts/reset-password").permitAll()
+//                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
+//                        .anyRequest().authenticated()
+//                )
+//                .oauth2ResourceServer(oauth2 -> oauth2
+//                        .jwt(jwt -> jwt
+//                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
+//                        )
+//                );
+//        return http.build();
+//    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/v1/accounts/login", "/api/v1/accounts/reset-password").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                        )
+                        .anyRequest().permitAll()
                 );
         return http.build();
     }
